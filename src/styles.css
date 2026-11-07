@@ -1085,3 +1085,190 @@ body { color: #edf1f4; background: var(--bg); }
 @media (max-width: 480px) {
   .hero-intro { top: 126px; }
 }
+
+/* High-visibility type scale for the latest pulled design */
+html { font-size: 18px; }
+body { font-size: 18px; line-height: 1.55; }
+.wordmark { font-size: 30px; }
+.header-inner { min-height: 66px; }
+.header-search { width: min(500px, calc(100vw - 470px)); min-width: 290px; height: 48px; }
+.header-search > svg { width: 20px; height: 20px; }
+.header-search input { font-size: 17px; }
+.header-search kbd { font-size: 12px; }
+.primary-nav button, .primary-nav a { font-size: 14px; letter-spacing: .02em; }
+.search-results { padding: 16px; }
+.search-label { font-size: 13px; }
+.search-result { padding: 12px 8px; }
+.search-result strong { font-size: 16px; }
+.search-result small { font-size: 14px; }
+.mini-brand { width: 38px; height: 38px; font-size: 12px; }
+.no-results { font-size: 16px; }
+
+.eyebrow { font-size: 14px; letter-spacing: .1em; }
+.hero-intro h1 { font-size: clamp(112px, 20vw, 320px); }
+.hero-intro .eyebrow { font-size: 14px; }
+.hero-description { max-width: 760px; font-size: 20px; line-height: 1.6; }
+.button { min-height: 56px; padding-inline: 20px; font-size: 16px; }
+.text-link { font-size: 16px; }
+.play-icon { font-size: 18px; }
+.branch-label { font-size: 13px; }
+.trust-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 24px; padding: 30px 6.1%; }
+.strip-intro { grid-column: 1 / -1; margin: 0; font-size: 25px; }
+.strip-item { display: grid; grid-template-columns: 50px minmax(0, 1fr); align-items: start; gap: 14px; min-width: 0; max-width: none; }
+.strip-icon { width: 46px; height: 46px; font-size: 13px; }
+.strip-item > span:last-child { display: grid; gap: 8px; }
+.strip-item strong { font-size: 21px; line-height: 1.35; }
+.strip-item small { font-size: 17px; line-height: 1.6; }
+
+.section-heading h2, .how-heading h2, .about-copy h2 { font-size: clamp(48px, 5vw, 70px); }
+.section-heading-aside p, .how-heading > p:last-child { font-size: 17px; line-height: 1.7; }
+.heading-count { font-size: 28px; }
+.heading-count i { font-size: 12px; }
+.brand-category { font-size: 13px; }
+.brand-name { font-size: 26px; }
+.brand-claim { min-height: 0; font-size: 16px; line-height: 1.55; }
+.score-badge { font-size: 14px; }
+.brand-card-bottom, .brand-section-footer { font-size: 15px; }
+.method-step h3 { font-size: 22px; }
+.method-step p { font-size: 16px; line-height: 1.65; }
+.about-copy > p:not(.eyebrow) { font-size: 17px; line-height: 1.7; }
+.about-link { font-size: 16px; }
+.about-stat strong { font-size: 28px; }
+.about-stat small { font-size: 15px; }
+.site-footer > p { font-size: 16px; }
+.footer-right { font-size: 14px; }
+
+.back-link { font-size: 15px; }
+.profile-generated, .verification-pill { font-size: 12px; }
+.profile-monogram { font-size: 19px; }
+.profile-hero h1 { font-size: clamp(52px, 6vw, 78px); }
+.profile-category { font-size: 16px; }
+.profile-links a { font-size: 14px; }
+.panel-heading h2, .evidence-heading h2 { font-size: 34px; }
+.summary-text { font-size: 17px; line-height: 1.7; }
+.claim-box small { font-size: 12px; }
+.claim-box strong { font-size: 19px; }
+.claim-box .claim-source { font-size: 14px; }
+.claim-status { font-size: 13px; }
+.summary-disclaimer, .profile-note p { font-size: 13px; line-height: 1.65; }
+.score-copy { font-size: 19px; }
+.score-timestamp, .evidence-heading > span, .evidence-index, .evidence-valid { font-size: 12px; }
+.score-dial strong { font-size: 48px; }
+.evidence-row h3 { font-size: 20px; }
+.evidence-row p { font-size: 15px; line-height: 1.55; }
+.evidence-check { font-size: 14px; }
+.profile-note > span { font-size: 19px; }
+.profile-footer { font-size: 12px; }
+.profile-footer button { font-size: 14px; }
+.app-shell :focus-visible { outline: 3px solid #253746; outline-offset: 4px; }
+
+@media (max-width: 1050px) {
+  .header-search { width: min(500px, calc(100vw - 470px)); min-width: 290px; }
+}
+@media (max-width: 760px) {
+  html { font-size: 17px; }
+  .header-inner { gap: 9px 12px; }
+  .header-search { width: min(410px, calc(100% - 140px)); min-width: 0; height: 44px; }
+  .header-search input { font-size: 15px; }
+  .primary-nav { gap: clamp(16px, 5vw, 32px); }
+  .primary-nav button, .primary-nav a { font-size: 13px; }
+  .hero-intro h1 { font-size: clamp(64px, 18vw, 150px); }
+  .hero-description { font-size: 17px; }
+  .trust-strip { grid-template-columns: 1fr; gap: 22px; padding: 26px 7%; }
+  .strip-item { grid-template-columns: 48px minmax(0, 1fr); gap: 14px; width: min(100%, 560px); margin-inline: auto; }
+  .strip-item strong { font-size: 20px; }
+  .strip-item small { font-size: 16px; }
+  .section-heading h2, .how-heading h2, .about-copy h2 { font-size: clamp(46px, 9vw, 64px); }
+  .section-heading-aside p, .how-heading > p:last-child { font-size: 16px; }
+  .brand-name { font-size: 24px; }
+  .brand-claim { font-size: 15px; }
+  .method-step p { font-size: 15px; }
+  .about-copy > p:not(.eyebrow) { font-size: 16px; }
+}
+@media (max-width: 520px) {
+  .header-search { width: calc(100% - 140px); }
+  .primary-nav { gap: 17px; }
+  .primary-nav button, .primary-nav a { font-size: 12px; }
+  .hero-intro h1 { font-size: clamp(64px, 18vw, 100px); }
+  .hero-description { font-size: 16px; }
+  .button, .text-link { font-size: 14px; }
+  .strip-intro { font-size: 22px; }
+  .strip-item { grid-template-columns: 43px minmax(0, 1fr); gap: 12px; }
+  .strip-icon { width: 40px; height: 40px; font-size: 12px; }
+  .strip-item strong { font-size: 18px; }
+  .strip-item small { font-size: 15px; }
+  .section-heading h2, .how-heading h2, .about-copy h2 { font-size: clamp(42px, 10vw, 54px); }
+  .brand-grid { grid-template-columns: 1fr; }
+  .brand-name { font-size: 23px; }
+  .brand-claim { font-size: 15px; }
+  .profile-generated { font-size: 10px; }
+  .profile-category { font-size: 14px; }
+  .profile-links a { font-size: 12px; }
+  .profile-summary { padding: 18px 15px; }
+  .panel-heading h2, .evidence-heading h2 { font-size: 27px; }
+  .summary-text { font-size: 15px; }
+  .claim-box strong { font-size: 16px; }
+  .claim-box .claim-source { font-size: 12px; }
+  .claim-status { font-size: 11px; }
+  .evidence-row { grid-template-columns: 24px 27px minmax(0, 1fr); gap: 8px; padding: 14px 10px; }
+  .evidence-row h3 { font-size: 18px; }
+  .evidence-row p { font-size: 14px; }
+  .evidence-valid { grid-column: 3; justify-self: start; margin-top: 5px; }
+  .profile-footer { gap: 9px; font-size: 11px; }
+  .profile-footer button { font-size: 12px; }
+}
+.footer-brand { font-size: 26px; }
+.brand-monogram { font-size: 14px; }
+.heading-count i, .step-number, .score-dial small { font-size: 12px; }
+.verified-check { width: 24px; height: 24px; font-size: 14px; }
+.tiny-orbit, .stat-star { font-size: 20px; }
+.profile-footer > span:first-child { font-size: 24px; }
+
+/* Return display titles to their previous scale and balance the header. */
+.hero-intro h1 { font-size: clamp(52px, 7.5vw, 100px); }
+.section-heading h2, .how-heading h2, .about-copy h2 { font-size: clamp(39px, 4.3vw, 58px); }
+.brand-name { font-size: 19px; }
+.method-step h3 { font-size: 16px; }
+.about-stat strong { font-size: 21px; }
+.strip-intro { font-size: 18px; }
+.strip-item strong { font-size: 17px; }
+.profile-hero h1 { font-size: clamp(43px, 6vw, 66px); }
+.panel-heading h2, .evidence-heading h2 { font-size: 26px; }
+.evidence-row h3 { font-size: 16px; }
+.score-copy { font-size: 16px; }
+
+.wordmark { font-size: 26px; }
+.header-inner { min-height: 54px; }
+.header-search { width: min(420px, calc(100vw - 500px)); min-width: 270px; height: 38px; }
+.primary-nav button, .primary-nav a { font-size: 12px; }
+
+@media (max-width: 1050px) {
+  .header-search { width: min(420px, calc(100vw - 500px)); min-width: 270px; }
+}
+@media (max-width: 760px) {
+  .header-inner { min-height: 84px; }
+  .header-search { width: min(410px, calc(100% - 140px)); min-width: 0; height: 36px; }
+  .primary-nav button, .primary-nav a { font-size: 12px; }
+  .hero-intro h1 { font-size: clamp(48px, 11vw, 74px); }
+  .section-heading h2, .how-heading h2, .about-copy h2 { font-size: clamp(40px, 10vw, 53px); }
+  .brand-name { font-size: 18px; }
+  .method-step h3 { font-size: 15px; }
+  .strip-intro { font-size: 17px; }
+  .strip-item strong { font-size: 16px; }
+}
+@media (max-width: 480px) {
+  .header-inner { min-height: 78px; }
+  .header-search { width: calc(100% - 140px); height: 35px; }
+  .hero-intro h1 { font-size: clamp(43px, 11.5vw, 58px); }
+  .section-heading h2, .how-heading h2, .about-copy h2 { font-size: clamp(38px, 10vw, 48px); }
+  .brand-name { font-size: 17px; }
+  .panel-heading h2, .evidence-heading h2 { font-size: 23px; }
+  .evidence-row h3 { font-size: 15px; }
+}
+.hero-intro h1 { font-size: clamp(76px, 15vw, 220px); }
+@media (max-width: 760px) {
+  .hero-intro h1 { font-size: clamp(64px, 14vw, 120px); }
+}
+@media (max-width: 480px) {
+  .hero-intro h1 { font-size: clamp(55px, 15vw, 78px);
+}
