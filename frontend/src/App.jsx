@@ -243,7 +243,7 @@ function BranchArtwork() {
 
     function animateText() {
       const movingUp = targetDrift < currentDrift;
-      currentDrift += (targetDrift - currentDrift) * (movingUp ? 0.55 : 0.25);
+      currentDrift += (targetDrift - currentDrift) * (movingUp ? 0.55 : 0.4);
       const intro = branchRef.current?.closest('.hero-section')?.querySelector('.hero-intro');
       intro?.style.setProperty('--text-scroll-drift', `${currentDrift.toFixed(1)}px`);
       if (Math.abs(targetDrift - currentDrift) > 0.2) {
@@ -380,13 +380,6 @@ function HomePage({ products, productsLoading, onSelectProduct, onSelectBrand, o
             <p className="hero-description">Turn Sustainability Claims Into Verified Sales</p>
           </div>
           <BranchArtwork />
-      </section>
-
-      <section className="trust-strip" aria-label="Verity verification features">
-        <div className="strip-intro"><span className="strip-spark">✳</span><span>Clarity you can feel good about</span></div>
-        <div className="strip-item"><span className="strip-icon">01</span><span><strong>Search the Brand:</strong><small>Look up any e-commerce platform.</small></span></div>
-        <div className="strip-item"><span className="strip-icon">02</span><span><strong>Real-Time AI Analysis:</strong><small>Our engine instantly scans thousands of pages of ESG reports, public certifications, and supply chain data.</small></span></div>
-        <div className="strip-item"><span className="strip-icon">03</span><span><strong>The Verdict:</strong><small>Receive a Verity Report with a clear “Trust Score”—telling you instantly if a brand is actually green, or just greenwashing.</small></span></div>
       </section>
 
       <section className="brands-section section-wrap" id="trusted-brands">
