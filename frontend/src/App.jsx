@@ -493,7 +493,7 @@ function PartnerPlansPage() {
       <section className="partner-intro section-wrap">
         <p className="eyebrow"><span className="eyebrow-mark">✳</span>VERITY FOR BRANDS</p>
         <h1>Make trust part<br /><em>of your story.</em></h1>
-        <p className="partner-intro-copy">Give your customers a clearer view of the evidence behind your sustainability claims.</p>
+        <p className="partner-intro-copy">Choose your subscription below !</p>
       </section>
       <section className="partner-plans section-wrap" aria-label="Subscription plans">
         <div className="partner-plans-heading">
