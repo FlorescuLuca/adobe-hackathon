@@ -98,7 +98,7 @@ function ArrowIcon({ diagonal = false }) {
   );
 }
 
-function Header({ query, setQuery, onSelectBrand, onHome, onNavigate, onCompanyLogin }) {
+function Header({ query, setQuery, onSelectBrand, onHome, onNavigate }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInput = useRef(null);
   const results = useMemo(() => {
@@ -157,10 +157,7 @@ function Header({ query, setQuery, onSelectBrand, onHome, onNavigate, onCompanyL
         <nav className="primary-nav" aria-label="Main navigation">
           <button type="button" onClick={() => onNavigate('trusted-brands')}>Brands</button>
           <button type="button" onClick={() => onNavigate('about')}>About us</button>
-          <button className="company-login-nav" type="button" onClick={onCompanyLogin}>
-            <span className="company-login-full">Login</span>
-            <span className="company-login-short">Log in</span>
-          </button>
+          <button type="button" onClick={() => onNavigate('partner')}>Partner with us</button>
           <a href="mailto:hello@verity.eco">Contact</a>
         </nav>
       </div>
@@ -287,7 +284,7 @@ function BrandCard({ brand, onSelectBrand }) {
   );
 }
 
-function HomePage({ onSelectBrand }) {
+function HomePage({ onSelectBrand, onPartner }) {
   return (
     <main>
         <section className="hero-section">
@@ -311,7 +308,7 @@ function HomePage({ onSelectBrand }) {
           <div className="section-heading-aside"><p>Explore a growing circle of brands making their sustainability claims easier to trust.</p><span className="heading-count">04 <i>VERIFIED BRANDS</i></span></div>
         </div>
         <div className="brand-grid">{brands.map((brand) => <BrandCard key={brand.name} brand={brand} onSelectBrand={onSelectBrand} />)}</div>
-        <div className="brand-section-footer"><span className="tiny-orbit">✳</span><span>Verity is growing a more transparent way to shop.</span><a href="mailto:hello@verity.eco">Partner with us <ArrowIcon /></a></div>
+        <div className="brand-section-footer"><span className="tiny-orbit">✳</span><span>Verity is growing a more transparent way to shop.</span><button type="button" className="partner-footer-link" onClick={onPartner}>Partner with us <ArrowIcon /></button></div>
       </section>
 
       <section className="how-section" id="how-it-works">
@@ -336,80 +333,84 @@ function HomePage({ onSelectBrand }) {
   );
 }
 
-function CompanyLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loggedInEmail, setLoggedInEmail] = useState('');
+const partnerPlans = [
+  {
+    name: 'Starter',
+    price: '€29',
+    audience: 'For small businesses',
+    features: [
+      '3 products',
+      '10 document analyses/month',
+      'AI greenwashing detection',
+      'Basic transparency pages',
+      'QR code generation',
+    ],
+  },
+  {
+    name: 'Professional',
+    price: '€99',
+    audience: 'For growing brands',
+    recommended: true,
+    features: [
+      '25 products',
+      '100 document analyses/month',
+      'Advanced claim analysis',
+      'Supplier evidence management',
+      'Embeddable website widget',
+      'Analytics dashboard',
+      'Priority processing',
+    ],
+  },
+  {
+    name: 'Enterprise',
+    price: '€399+',
+    audience: 'For larger companies',
+    features: [
+      'Unlimited products subject to fair-use limits',
+      'Higher document processing allowance',
+      'Multiple team members',
+      'API access',
+      'Supplier management',
+      'Custom integrations',
+      'Advanced reporting',
+    ],
+  },
+];
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    setLoggedInEmail(email.trim());
-    setPassword('');
-  }
-
+function PartnerPlansPage() {
   return (
-    <main className="company-login-page">
-      <section className="company-login-intro">
-        <p className="eyebrow"><Mark className="company-login-leaf" /> VERITY FOR COMPANIES</p>
-        <h1>Put your claims<br /><em>on solid ground.</em></h1>
-        <p className="company-login-lead">Give shoppers clear, verified evidence at the moment they choose your products.</p>
-        <div className="company-login-benefits">
-          <div><span>01</span><p><strong>Show the evidence</strong><small>Turn sustainability claims into a transparent evidence chain.</small></p></div>
-          <div><span>02</span><p><strong>Build shopper trust</strong><small>Help customers understand what stands behind your products.</small></p></div>
-          <div><span>03</span><p><strong>Access company plans</strong><small>Sign in to explore Verity subscription options for your brand.</small></p></div>
+    <main className="partner-page">
+      <section className="partner-intro section-wrap">
+        <p className="eyebrow"><span className="eyebrow-mark">✳</span>VERITY FOR BRANDS</p>
+        <h1>Make trust part<br /><em>of your story.</em></h1>
+        <p className="partner-intro-copy">Give your customers a clearer view of the evidence behind your sustainability claims.</p>
+      </section>
+      <section className="partner-plans section-wrap" aria-label="Subscription plans">
+        <div className="partner-plans-heading">
+          <div><p className="eyebrow">SIMPLE MONTHLY PLANS</p><h2>Choose your level<br /><em>of transparency.</em></h2></div>
+          <p>Start with the tools you need today, then grow your verification workflow as your brand expands.</p>
         </div>
+        <div className="partner-plan-grid">
+          {partnerPlans.map((plan) => (
+            <article className={`partner-plan-card${plan.recommended ? ' is-recommended' : ''}`} key={plan.name}>
+              <div className="partner-plan-topline">
+                <span className="partner-plan-index">VERITY / {plan.name === 'Starter' ? '01' : plan.name === 'Professional' ? '02' : '03'}</span>
+                {plan.recommended && <span className="partner-recommended"><span className="status-dot" />RECOMMENDED</span>}
+              </div>
+              <h3>{plan.name}</h3>
+              <p className="partner-plan-audience">{plan.audience}</p>
+              <div className="partner-plan-price"><strong>{plan.price}</strong><span>/ month</span></div>
+              <a className="partner-plan-action" href={`mailto:hello@verity.eco?subject=${encodeURIComponent(`Verity ${plan.name} plan`)}`}>
+                {plan.name === 'Enterprise' ? 'Talk to our team' : 'Choose this plan'} <ArrowIcon />
+              </a>
+              <div className="partner-plan-divider"><span>INCLUDED</span></div>
+              <ul>{plan.features.map((feature) => <li key={feature}><span aria-hidden="true">✓</span>{feature}</li>)}</ul>
+            </article>
+          ))}
+        </div>
+        <p className="partner-plans-note">Need a tailored setup? <a href="mailto:hello@verity.eco?subject=Verity%20partnership">Talk with us about your requirements <ArrowIcon /></a></p>
       </section>
-
-      <section className="company-login-panel" aria-labelledby="company-login-title">
-        <div className="company-login-panel-brand"><Mark /><span>COMPANY PORTAL</span></div>
-        {loggedInEmail ? (
-          <div className="company-login-success" role="status" aria-live="polite">
-            <span className="company-login-success-icon" aria-hidden="true">✓</span>
-            <p className="eyebrow">ACCESS GRANTED</p>
-            <h2 id="company-login-title">You logged in!</h2>
-            <p className="company-login-success-copy">You’re signed in as <strong>{loggedInEmail}</strong>. Your company access is ready.</p>
-            <div className="company-subscription-note">
-              <span>COMPANY SUBSCRIPTIONS</span>
-              <p>Verity plans and subscription tools are ready to be connected to this portal.</p>
-            </div>
-            <button className="login-secondary-button" type="button" onClick={() => { setLoggedInEmail(''); setEmail(''); }}>
-              Sign in with another email <ArrowIcon />
-            </button>
-          </div>
-        ) : (
-          <>
-            <p className="eyebrow">BRAND ACCESS</p>
-            <h2 id="company-login-title">Login</h2>
-            <p className="company-login-panel-copy">Sign in to explore subscriptions and manage your Verity company profile.</p>
-            <form className="company-login-form" onSubmit={handleSubmit}>
-              <label htmlFor="company-email">Work email</label>
-              <input
-                id="company-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
-              <label htmlFor="company-password">Password</label>
-              <input
-                id="company-password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
-              <button className="company-login-submit" type="submit">Log in <ArrowIcon /></button>
-              <p className="company-login-demo-note">Demo access: no account verification, database, or backend is connected.</p>
-            </form>
-          </>
-        )}
-      </section>
+      <footer className="partner-page-footer section-wrap"><span>verity<span className="wordmark-period">.</span></span><span>Evidence for a more informed choice.</span></footer>
     </main>
   );
 }
@@ -456,41 +457,43 @@ function BrandProfile({ brand, onBack }) {
 export default function App() {
   const [query, setQuery] = useState('');
   const [selectedBrand, setSelectedBrand] = useState(null);
-  const [showCompanyLogin, setShowCompanyLogin] = useState(false);
+  const [activePage, setActivePage] = useState('home');
 
   function showHome() {
     setSelectedBrand(null);
-    setShowCompanyLogin(false);
+    setActivePage('home');
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
   function navigateTo(id) {
-    if (selectedBrand || showCompanyLogin) {
+    if (id === 'partner') {
       setSelectedBrand(null);
-      setShowCompanyLogin(false);
-      window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'auto' }), 60);
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
+      setActivePage('partner');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      return;
     }
+
+    const returnToHome = selectedBrand || activePage !== 'home';
+    if (returnToHome) {
+      setSelectedBrand(null);
+      setActivePage('home');
+      window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'auto' }), 60);
+      return;
+    }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
   }
 
   function openBrand(brand) {
     setSelectedBrand(brand);
-    setQuery('');
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  }
-
-  function openCompanyLogin() {
-    setSelectedBrand(null);
-    setShowCompanyLogin(true);
+    setActivePage('home');
     setQuery('');
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
   return (
     <div className="app-shell">
-      <Header query={query} setQuery={setQuery} onSelectBrand={openBrand} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} />
-      {selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : showCompanyLogin ? <CompanyLogin /> : <HomePage onSelectBrand={openBrand} />}
+      <Header query={query} setQuery={setQuery} onSelectBrand={openBrand} onHome={showHome} onNavigate={navigateTo} />
+      {selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : <HomePage onSelectBrand={openBrand} onPartner={() => navigateTo('partner')} />}
     </div>
   );
 }
