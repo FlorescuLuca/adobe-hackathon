@@ -936,6 +936,32 @@ body { color: #edf1f4; background: var(--bg); }
   .hero-intro { top: 126px; }
 }
 
+/* Normal-flow text with a full-width branch moving over it on scroll */
+.hero-intro {
+  position: absolute;
+  top: clamp(110px, 14vh, 170px);
+  left: 50%;
+  z-index: 1;
+  margin: 0;
+  transform: translateX(-50%);
+}
+.branch-art { z-index: auto; }
+.branch-image {
+  left: 50%;
+  bottom: -27%;
+  width: 100vw;
+  z-index: 2;
+  transform: translate(-50%, var(--scroll-drift, 0px));
+}
+@media (max-width: 760px) {
+  .hero-intro { top: 132px; }
+  .branch-image { bottom: -22%; width: 100vw; }
+}
+@media (max-width: 480px) {
+  .hero-intro { top: 126px; }
+  .branch-image { bottom: -19%; width: 100vw; }
+}
+
 /* Full-screen editorial hero with a visibly moving ShaderGradient field */
 .hero-section {
   width: 100%;
@@ -1030,4 +1056,32 @@ body { color: #edf1f4; background: var(--bg); }
 }
 @media (max-width: 480px) {
   .hero-section { height: 92svh; min-height: 620px; }
+}
+
+/* Keep copy in place as the branch scrolls across it */
+.hero-section { overflow: clip; }
+.branch-art { z-index: auto; }
+.shader-field { z-index: 0; }
+.hero-intro {
+  position: sticky;
+  top: clamp(110px, 14vh, 170px);
+  left: auto;
+  align-self: start;
+  justify-self: center;
+  z-index: 1;
+  margin: 0;
+  transform: none;
+}
+.branch-image { z-index: 2; }
+.branch-label { z-index: 3; }
+.shader-field::after {
+  background-image:
+    radial-gradient(ellipse at 28% 42%, rgba(137, 157, 170, .84) 0, rgba(185, 199, 208, .6) 35%, transparent 62%),
+    radial-gradient(ellipse at 74% 67%, rgba(207, 218, 225, .9) 0, transparent 53%);
+}
+@media (max-width: 760px) {
+  .hero-intro { top: 132px; }
+}
+@media (max-width: 480px) {
+  .hero-intro { top: 126px; }
 }
