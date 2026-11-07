@@ -2406,3 +2406,29 @@ body { font-size: 18px; line-height: 1.55; }
   .about-audiences li { padding: 20px 0; }
   .about-audiences li + li { padding: 24px 0 20px; }
 }
+
+/* Keep the branch full-width while scaling its visible height to the viewport. */
+.hero-section { height: clamp(620px, 92svh, 980px); min-height: 0; }
+.hero-intro h1 { font-size: clamp(58px, 10vw, 180px); }
+.branch-image {
+  z-index: 2;
+  left: 50%;
+  bottom: -28svh;
+  width: 100vw;
+  height: auto;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: translateX(-50%);
+}
+@media (min-aspect-ratio: 1.9/1) {
+  .branch-image { bottom: -38svh; }
+}
+@media (max-width: 760px) {
+  .hero-section { height: clamp(640px, 92svh, 820px); }
+  .hero-intro h1 { font-size: clamp(58px, 10vw, 76px); }
+  .branch-image {
+    left: 50%;
+    bottom: -16svh;
+    width: 140vw;
+  }
+}
