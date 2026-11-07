@@ -936,6 +936,32 @@ body { color: #edf1f4; background: var(--bg); }
   .hero-intro { top: 126px; }
 }
 
+/* Normal-flow text with a full-width branch moving over it on scroll */
+.hero-intro {
+  position: absolute;
+  top: clamp(110px, 14vh, 170px);
+  left: 50%;
+  z-index: 1;
+  margin: 0;
+  transform: translateX(-50%);
+}
+.branch-art { z-index: auto; }
+.branch-image {
+  left: 50%;
+  bottom: -27%;
+  width: 100vw;
+  z-index: 2;
+  transform: translate(-50%, var(--scroll-drift, 0px));
+}
+@media (max-width: 760px) {
+  .hero-intro { top: 132px; }
+  .branch-image { bottom: -22%; width: 100vw; }
+}
+@media (max-width: 480px) {
+  .hero-intro { top: 126px; }
+  .branch-image { bottom: -19%; width: 100vw; }
+}
+
 /* Full-screen editorial hero with a visibly moving ShaderGradient field */
 .hero-section {
   width: 100%;
@@ -1030,6 +1056,34 @@ body { color: #edf1f4; background: var(--bg); }
 }
 @media (max-width: 480px) {
   .hero-section { height: 92svh; min-height: 620px; }
+}
+
+/* Keep copy in place as the branch scrolls across it */
+.hero-section { overflow: clip; }
+.branch-art { z-index: auto; }
+.shader-field { z-index: 0; }
+.hero-intro {
+  position: sticky;
+  top: clamp(110px, 14vh, 170px);
+  left: auto;
+  align-self: start;
+  justify-self: center;
+  z-index: 1;
+  margin: 0;
+  transform: none;
+}
+.branch-image { z-index: 2; }
+.branch-label { z-index: 3; }
+.shader-field::after {
+  background-image:
+    radial-gradient(ellipse at 28% 42%, rgba(137, 157, 170, .84) 0, rgba(185, 199, 208, .6) 35%, transparent 62%),
+    radial-gradient(ellipse at 74% 67%, rgba(207, 218, 225, .9) 0, transparent 53%);
+}
+@media (max-width: 760px) {
+  .hero-intro { top: 132px; }
+}
+@media (max-width: 480px) {
+  .hero-intro { top: 126px; }
 }
 
 /* High-visibility type scale for the latest pulled design */
@@ -1268,7 +1322,41 @@ body { font-size: 18px; line-height: 1.55; }
   .hero-intro h1 { font-size: clamp(64px, 14vw, 120px); }
 }
 @media (max-width: 480px) {
-  .hero-intro h1 { font-size: clamp(55px, 15vw, 78px); }
+  .hero-intro h1 { font-size: clamp(55px, 15vw, 78px);
+}
+}
+
+/* Stronger color travel and a glass plate for the hero's lower copy */
+.shader-field {
+  background:
+    radial-gradient(ellipse at 18% 28%, rgba(161, 181, 195, .98), transparent 46%),
+    radial-gradient(ellipse at 80% 72%, rgba(205, 217, 226, .96), transparent 44%),
+    #fff;
+  animation-duration: 6s;
+}
+.shader-field::after {
+  background-image:
+    radial-gradient(ellipse at 26% 40%, rgba(122, 145, 160, .88) 0, rgba(173, 191, 203, .68) 36%, transparent 64%),
+    radial-gradient(ellipse at 76% 70%, rgba(202, 216, 225, .93) 0, transparent 54%);
+  opacity: .88;
+  animation-duration: 6s;
+}
+.hero-description {
+  display: table;
+  width: fit-content;
+  max-width: min(680px, 90vw);
+  margin: 32px auto 20px;
+  padding: 15px 26px;
+  border: 1px solid rgba(255, 255, 255, .64);
+  border-radius: 22px;
+  color: #40515d;
+  background: linear-gradient(135deg, rgba(250, 252, 254, .58), rgba(227, 236, 242, .34));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 10px 30px rgba(51, 70, 84, .09);
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+}
+@media (max-width: 760px) {
+  .hero-description { display: block; width: fit-content; max-width: 90vw; margin: 24px auto 18px; padding: 13px 18px; }
 }
 
 /* Match the brand cards to the floating liquid-glass header. */

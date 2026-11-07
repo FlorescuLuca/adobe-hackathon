@@ -165,32 +165,41 @@ function Header({ query, setQuery, onSelectBrand, onHome, onNavigate }) {
 }
 
 function BranchArtwork() {
-  const [branchSource, setBranchSource] = useState('');
+  const branchRef = useRef(null);
 
   useEffect(() => {
-    const source = new Image();
-    source.src = '/mossy-branch.jpg';
-    source.onload = () => {
-      const canvas = document.createElement('canvas');
-      const width = source.naturalWidth;
-      const height = source.naturalHeight;
-      canvas.width = width;
-      canvas.height = height;
-      const context = canvas.getContext('2d', { willReadFrequently: true });
-      context.drawImage(source, 0, 0, width, height);
-      const pixels = context.getImageData(0, 0, width, height);
-      for (let i = 0; i < pixels.data.length; i += 4) {
-        const red = pixels.data[i];
-        const green = pixels.data[i + 1];
-        const blue = pixels.data[i + 2];
-        const lightest = Math.min(red, green, blue);
-        const spread = Math.max(red, green, blue) - lightest;
-        if (lightest > 231 && spread < 20) {
-          pixels.data[i + 3] = Math.round(255 * (1 - Math.min(1, (lightest - 231) / 24)));
-        }
+    let currentDrift = 0;
+    let targetDrift = 0;
+    let frame = 0;
+
+    function animateDrift() {
+      currentDrift += (targetDrift - currentDrift) * 0.24;
+      branchRef.current?.style.setProperty('--scroll-drift', `${(-currentDrift).toFixed(1)}px`);
+      if (Math.abs(targetDrift - currentDrift) > 0.25) {
+        frame = window.requestAnimationFrame(animateDrift);
+      } else {
+        currentDrift = targetDrift;
+        branchRef.current?.style.setProperty('--scroll-drift', `${(-currentDrift).toFixed(1)}px`);
+        frame = 0;
       }
-      context.putImageData(pixels, 0, 0);
-      setBranchSource(canvas.toDataURL('image/png'));
+    }
+
+    function updateDrift() {
+      const hero = branchRef.current?.closest('.hero-section');
+      if (!hero) return;
+      const heroTop = hero.getBoundingClientRect().top;
+      const progress = Math.min(1, Math.max(0, -heroTop / (hero.offsetHeight * 0.72)));
+      targetDrift = progress * Math.min(window.innerHeight * 0.27, 210);
+      if (!frame) frame = window.requestAnimationFrame(animateDrift);
+    }
+
+    window.addEventListener('scroll', updateDrift, { passive: true });
+    window.addEventListener('resize', updateDrift);
+    updateDrift();
+    return () => {
+      window.removeEventListener('scroll', updateDrift);
+      window.removeEventListener('resize', updateDrift);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
@@ -201,22 +210,24 @@ function BranchArtwork() {
           <ShaderGradient
             type="plane"
             animate="on"
-            uSpeed={0.56}
-            uStrength={3.8}
-            uDensity={2.15}
-            uFrequency={2.35}
+            uSpeed={0.78}
+            uStrength={4.4}
+            uDensity={2.45}
+            uFrequency={2.7}
+            smoothTime={0.8}
+            enableTransition
             color1="#ffffff"
-            color2="#a6b7c3"
+            color2="#8799a5"
             color3="#e7eef2"
             brightness={1.1}
             grain="on"
-            grainBlending={0.32}
+            grainBlending={0.4}
             cDistance={3.6}
             cPolarAngle={90}
           />
         </ShaderGradientCanvas>
       </div>
-      {branchSource && <img className="branch-image" src={branchSource} alt="" />}
+      <img ref={branchRef} className="branch-image" src="/mossy-branch.png" alt="" />
       <div className="branch-label"><span className="status-dot" /> MATERIAL TRACEABILITY · VERIFIED</div>
     </div>
   );
@@ -276,7 +287,7 @@ function HomePage({ onSelectBrand }) {
     <main>
         <section className="hero-section">
         <div className="hero-intro">
-            <h1>Verity</h1>
+            <h1>VERITY</h1>
             <p className="hero-description">Turn Sustainability Claims Into Verified Sales.</p>
             <div className="hero-actions">
               <button className="button button-primary" type="button" onClick={() => document.getElementById('trusted-brands')?.scrollIntoView({ behavior: 'smooth' })}>Explore verified brands <ArrowIcon /></button>
