@@ -129,7 +129,7 @@ function Header({ query, setQuery, onSelectBrand, onHome, onNavigate }) {
           <input
             ref={searchInput}
             aria-label="Search verified brands"
-            placeholder="Search a brand or claim"
+            placeholder="Search brands"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onFocus={() => setSearchOpen(true)}
@@ -225,8 +225,8 @@ function HomePage({ onSelectBrand }) {
       <section className="hero-section">
         <div className="hero-intro">
           <div className="eyebrow"><span className="eyebrow-mark">✳</span> THE NEW STANDARD FOR CONSCIOUS COMMERCE</div>
-          <h1>Trust, rooted<br /><em>in proof.</em></h1>
-          <p className="hero-description">A clearer view of what’s behind the things you buy. Verity turns big sustainability promises into evidence you can actually see.</p>
+          <h1>VERITY</h1>
+          <p className="hero-description">Turn Sustainability Claims Into Verified Sales.</p>
           <div className="hero-actions">
             <button className="button button-primary" type="button" onClick={() => document.getElementById('trusted-brands')?.scrollIntoView({ behavior: 'smooth' })}>Explore verified brands <ArrowIcon /></button>
             <button className="text-link" type="button" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How Verity works <span className="play-icon">↗</span></button>
@@ -253,9 +253,9 @@ function HomePage({ onSelectBrand }) {
 
       <section className="trust-strip" aria-label="Verity verification features">
         <div className="strip-intro"><span className="strip-spark">✳</span><span>Clarity you can feel good about</span></div>
-        <div className="strip-item"><span className="strip-icon">⌁</span><span><strong>Evidence, not promises</strong><small>Claims backed by source documents</small></span></div>
-        <div className="strip-item"><span className="strip-icon">◎</span><span><strong>Checked in real time</strong><small>Certificates and records cross-checked</small></span></div>
-        <div className="strip-item"><span className="strip-icon">↗</span><span><strong>Right at checkout</strong><small>Better context, without the detour</small></span></div>
+        <div className="strip-item"><span className="strip-icon">01</span><span><strong>Search the Brand:</strong><small>Look up any e-commerce platform.</small></span></div>
+        <div className="strip-item"><span className="strip-icon">02</span><span><strong>Real-Time AI Analysis:</strong><small>Our engine instantly scans thousands of pages of ESG reports, public certifications, and supply chain data.</small></span></div>
+        <div className="strip-item"><span className="strip-icon">03</span><span><strong>The Verdict:</strong><small>Receive a Verity Report with a clear “Trust Score”—telling you instantly if a brand is actually green, or just greenwashing.</small></span></div>
       </section>
 
       <section className="brands-section section-wrap" id="trusted-brands">
