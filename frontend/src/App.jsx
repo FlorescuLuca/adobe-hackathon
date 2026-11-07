@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ShaderGradient, ShaderGradientCanvas } from '@shadergradient/react';
 import { authConfigured, getValidSession, signInWithPassword, signUpWithPassword, signOut as signOutAuth } from './auth.js';
 import { apiRequest } from './api.js';
 import BusinessDashboard from './BusinessDashboard.jsx';
@@ -213,7 +214,28 @@ function BranchArtwork() {
 
   return (
     <div className="branch-art" aria-label="Moss and lichen growing on a fallen tree branch" role="img">
-      <div className="shader-field" aria-hidden="true" />
+      <div className="shader-field" aria-hidden="true">
+        <ShaderGradientCanvas style={{ position: 'absolute', inset: 0 }} pixelDensity={1} fov={45}>
+          <ShaderGradient
+            type="waterPlane"
+            animate="on"
+            uSpeed={1.15}
+            uStrength={5.8}
+            uDensity={1.9}
+            uFrequency={2.7}
+            smoothTime={0.55}
+            enableTransition
+            color1="#f7fbfd"
+            color2="#526b7d"
+            color3="#c5d6e1"
+            brightness={1.25}
+            grain="on"
+            grainBlending={0.4}
+            cDistance={3.6}
+            cPolarAngle={90}
+          />
+        </ShaderGradientCanvas>
+      </div>
       <img ref={branchRef} className="branch-image" src="/mossy-branch.png" alt="" />
       <div className="branch-label"><span className="status-dot" /> MATERIAL TRACEABILITY · VERIFIED</div>
     </div>
@@ -301,8 +323,36 @@ function HomePage({ products, productsLoading, onSelectProduct, onPartner }) {
       </section>
 
       <section className="about-section section-wrap" id="about">
-        <div className="about-symbol"><Mark /><span className="about-orbit" /><span className="about-orbit orbit-b" /></div>
-        <div className="about-copy"><p className="eyebrow">A LITTLE ABOUT US</p><h2>Good decisions need<br /><em>good information.</em></h2><p>Verity exists to make sustainability less of a leap of faith. We connect the words on a product page to the documents, standards, and suppliers behind them—so shoppers and brands can meet in a place built on trust.</p><a href="mailto:hello@verity.eco" className="about-link">Get to know Verity <ArrowIcon /></a></div>
+        <div className="about-copy">
+          <div className="about-kicker-row">
+            <div className="about-symbol about-symbol-inline" aria-hidden="true"><Mark /><span className="about-orbit" /><span className="about-orbit orbit-b" /></div>
+            <p className="eyebrow">A LITTLE ABOUT US</p>
+          </div>
+          <h2>Good decisions need<br /><em>good information.</em></h2>
+          <p>Verity bridges this gap by replacing static, unverified “100% Recycled” or “Eco-Friendly” marketing badges with a dynamic verification layer.</p>
+          <div className="about-problem-solution">
+            <section className="about-context-block">
+              <h3>Problem</h3>
+              <p>E-commerce faces a massive trust deficit regarding corporate sustainability. Brands invest heavily in ethical supply chains and eco-friendly marketing, but cynical consumers often dismiss these claims as “greenwashing.”</p>
+            </section>
+            <section className="about-context-block">
+              <h3>Solution</h3>
+              <p>We bridge the gap between eco-conscious consumers and authentic brands. Verity shifts the paradigm from <em>unverified marketing claims</em> to <em>independent AI validation</em>. A single search gives you a clear, factual report that either validates or debunks a company’s eco-claims.</p>
+            </section>
+          </div>
+          <p className="about-platform-intro">To deliver transparency for a world that's ready to ask better questions, Verity operates as a two-sided platform:</p>
+          <ul className="about-audiences">
+            <li>
+              <strong>For Conscious Shoppers:</strong>
+              <p>We provide a dedicated AI search engine. Instead of taking green marketing at face value, you can search for any brand to see exactly how trusted they are and verify if their sustainability claims are actually true.</p>
+            </li>
+            <li>
+              <strong>For Ethical Brands:</strong>
+              <p>We offer a space to make every claim count. Companies that back up their promises can log in, choose a subscription plan, and be prominently featured as a trusted brand on our main page. This allows genuinely sustainable companies to promote their products directly to a high-intent audience that values verified ethics.</p>
+            </li>
+          </ul>
+          <a href="mailto:hello@verity.eco" className="about-link">Get to know Verity <ArrowIcon /></a>
+        </div>
         <div className="about-stat"><span className="stat-star">✳</span><strong>Make every<br />claim count.</strong><small>Transparency for a world that’s ready to ask better questions.</small></div>
       </section>
 
