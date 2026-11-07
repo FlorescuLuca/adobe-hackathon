@@ -143,7 +143,6 @@ function Header({ query, setQuery, products, onSelectProduct, onHome, onNavigate
               if (event.key === 'Escape') setSearchOpen(false);
             }}
           />
-          <kbd>⌘ K</kbd>
           {searchOpen && (
             <div className="search-results">
               <p className="search-label">{query ? 'PUBLISHED PRODUCTS' : 'RECENTLY PUBLISHED'}</p>
