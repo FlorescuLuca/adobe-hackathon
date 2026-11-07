@@ -1,0 +1,1 @@
+"""VERITY backend application."""

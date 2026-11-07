@@ -1,0 +1,9 @@
+fastapi
+httpx
+openai
+pydantic-settings
+pymupdf
+python-dotenv
+python-multipart
+supabase
+uvicorn
