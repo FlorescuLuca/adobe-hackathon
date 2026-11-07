@@ -1378,13 +1378,13 @@ body { font-size: 18px; line-height: 1.55; }
   align-self: auto;
   justify-self: auto;
   z-index: 1;
-  transform: translateX(-50%);
+  transform: translate(-50%, var(--text-scroll-drift, 0px));
 }
 .branch-image {
   left: 50%;
   bottom: -30%;
   width: 108vw;
-  transform: translate(-50%, var(--scroll-drift, 0px));
+  transform: translate(-50%, 0);
 }
 .branch-label {
   padding: 13px 19px;
@@ -1403,6 +1403,50 @@ body { font-size: 18px; line-height: 1.55; }
 @media (max-width: 480px) {
   .hero-intro { top: 126px; }
   .branch-image { bottom: -23%; width: 108vw; }
+}
+.shader-field {
+  inset: 0;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  filter: none;
+  opacity: 1;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.shader-field::after {
+  inset: -18%;
+  background-image:
+    radial-gradient(ellipse 72% 58% at 18% 28%, rgba(70, 94, 111, .84) 0, rgba(111, 137, 155, .66) 34%, transparent 67%),
+    radial-gradient(ellipse 76% 54% at 82% 76%, rgba(220, 234, 242, .92) 0, rgba(171, 194, 208, .72) 39%, transparent 70%);
+  background-size: 170% 165%, 165% 175%;
+  background-position: 0% 40%, 100% 60%;
+  opacity: .9;
+  mix-blend-mode: multiply;
+  animation: shader-wave-flow 7s ease-in-out infinite alternate;
+}
+@keyframes shader-wave-flow {
+  0% {
+    background-position: 0% 35%, 100% 65%;
+    transform: translate3d(-3%, 1%, 0) scale(1.02) skewY(-2deg);
+  }
+  50% {
+    background-position: 52% 72%, 42% 28%;
+    transform: translate3d(2%, -2%, 0) scale(1.08) skewY(1.5deg);
+  }
+  100% {
+    background-position: 100% 62%, 0% 38%;
+    transform: translate3d(-1%, 2%, 0) scale(1.04) skewY(-1deg);
+  }
+}
+.hero-intro h1 { font-size: clamp(120px, 20vw, 300px); }
+@media (max-width: 760px) {
+  .hero-intro h1 { font-size: clamp(96px, 19vw, 160px); }
+}
+@media (max-width: 480px) {
+  .hero-intro h1 { font-size: clamp(72px, 22vw, 100px); }
 }
 
 /* Match the brand cards to the floating liquid-glass header. */

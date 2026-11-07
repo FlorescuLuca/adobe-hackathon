@@ -168,12 +168,30 @@ function BranchArtwork() {
   const branchRef = useRef(null);
 
   useEffect(() => {
+    let currentDrift = 0;
+    let targetDrift = 0;
+    let frame = 0;
+
+    function animateText() {
+      const movingUp = targetDrift < currentDrift;
+      currentDrift += (targetDrift - currentDrift) * (movingUp ? 0.55 : 0.25);
+      const intro = branchRef.current?.closest('.hero-section')?.querySelector('.hero-intro');
+      intro?.style.setProperty('--text-scroll-drift', `${currentDrift.toFixed(1)}px`);
+      if (Math.abs(targetDrift - currentDrift) > 0.2) {
+        frame = window.requestAnimationFrame(animateText);
+      } else {
+        currentDrift = targetDrift;
+        intro?.style.setProperty('--text-scroll-drift', `${currentDrift.toFixed(1)}px`);
+        frame = 0;
+      }
+    }
+
     function updateDrift() {
       const hero = branchRef.current?.closest('.hero-section');
       if (!hero) return;
       const heroTop = hero.getBoundingClientRect().top;
-      const drift = Math.max(0, -heroTop) * 0.27;
-      branchRef.current.style.setProperty('--scroll-drift', `${(-drift).toFixed(1)}px`);
+      targetDrift = Math.max(0, -heroTop) * 0.5;
+      if (!frame) frame = window.requestAnimationFrame(animateText);
     }
 
     window.addEventListener('scroll', updateDrift, { passive: true });
@@ -182,6 +200,7 @@ function BranchArtwork() {
     return () => {
       window.removeEventListener('scroll', updateDrift);
       window.removeEventListener('resize', updateDrift);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
@@ -190,18 +209,18 @@ function BranchArtwork() {
       <div className="shader-field" aria-hidden="true">
         <ShaderGradientCanvas style={{ position: 'absolute', inset: 0 }} pixelDensity={1} fov={45}>
           <ShaderGradient
-            type="plane"
+            type="waterPlane"
             animate="on"
-            uSpeed={0.78}
-            uStrength={4.4}
-            uDensity={2.45}
+            uSpeed={1.15}
+            uStrength={5.8}
+            uDensity={1.9}
             uFrequency={2.7}
-            smoothTime={0.8}
+            smoothTime={0.55}
             enableTransition
-            color1="#ffffff"
-            color2="#8799a5"
-            color3="#e7eef2"
-            brightness={1.1}
+            color1="#f7fbfd"
+            color2="#526b7d"
+            color3="#c5d6e1"
+            brightness={1.25}
             grain="on"
             grainBlending={0.4}
             cDistance={3.6}
