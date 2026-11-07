@@ -1898,6 +1898,12 @@ body { font-size: 18px; line-height: 1.55; }
 .company-subscription-note p { margin: 8px 0 0; color: #c2d0ca; font-size: 14px; line-height: 1.55; }
 .login-secondary-button { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; padding: 8px 0; border: 0; color: #dce9e2; background: transparent; font-size: 15px; cursor: pointer; }
 .login-secondary-button:hover { color: var(--company-leaf); }
+.company-auth-switch { width: 100%; justify-content: center; margin-top: 13px; color: #c2d0ca; font-size: 14px; text-align: center; }
+.company-auth-switch:hover { color: #edf5ef; }
+.company-signup-page .company-login-panel { align-self: center; }
+.brands-section .section-heading h2 em,
+.how-section .how-heading h2 em,
+.about-section .about-copy h2 em { color: #a4b98c; }
 
 /* API-connected company workspace and transparency page */
 .dashboard-page, .public-product-page { width: min(1160px, calc(100% - 40px)); min-height: calc(100vh - 76px); margin: 0 auto; padding: 54px 0 80px; }
@@ -2196,4 +2202,66 @@ body { font-size: 18px; line-height: 1.55; }
 
 @media (max-width: 520px) {
   .brand-card-title .brand-name { font-size: 23px; }
+}
+
+.partner-intro {
+  height: calc(92svh - 200px);
+  min-height: 440px;
+}
+.partner-intro-copy {
+  font-size: 23px;
+  transform: translateY(30px);
+}
+@media (max-width: 760px) {
+  .partner-intro { height: calc(92svh - 200px); min-height: 440px; }
+}
+@media (max-width: 480px) {
+  .partner-intro { height: calc(92svh - 200px); min-height: 420px; }
+}
+
+.method-step .step-number {
+  display: block;
+  width: 100%;
+  color: #a4b98c;
+  font: 600 23px/1 var(--mono);
+  letter-spacing: .12em;
+  text-align: center;
+}
+@media (max-width: 760px) {
+  .method-step .step-number { grid-column: 1 / -1; grid-row: 1; justify-self: center; margin-bottom: 5px; }
+  .method-step .step-icon { grid-column: 1; grid-row: 2 / span 2; }
+  .method-step h3 { grid-column: 2 / span 2; grid-row: 2; }
+  .method-step p { grid-column: 2 / span 2; grid-row: 3; }
+}
+
+/* Slimmer main navigation and adjusted hero copy/search placement. */
+.header-inner { min-height: 44px; }
+.header-search { height: 30px; }
+@media (min-width: 1100px) {
+  .header-search { left: calc(50% - 90px); }
+}
+.hero-section .hero-description { transform: translateY(-30px); }
+@media (max-width: 960px) {
+  .header-inner { min-height: 78px; }
+  .header-search { height: 36px; }
+}
+@media (max-width: 520px) {
+  .header-inner { min-height: 72px; }
+  .header-search { height: 34px; }
+}
+.partner-plans { padding-top: 60px; }
+.partner-plan-card,
+.partner-plan-card.is-recommended {
+  border-color: rgba(219, 229, 237, .18);
+  background: linear-gradient(155deg, rgba(71, 82, 92, .78), rgba(42, 50, 59, .92));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 18px 45px rgba(20, 26, 32, .12);
+  transform: translateY(0);
+  transition: border-color .22s ease, background .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+.partner-plan-card:hover,
+.partner-plan-card:focus-within {
+  border-color: rgba(210, 226, 237, .58);
+  background: linear-gradient(155deg, rgba(89, 106, 120, .9), rgba(48, 59, 69, .98));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 20px 50px rgba(20, 26, 32, .22);
+  transform: translateY(-4px);
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { authConfigured, getValidSession, signInWithPassword, signOut as signOutAuth } from './auth.js';
+import { authConfigured, getValidSession, signInWithPassword, signUpWithPassword, signOut as signOutAuth } from './auth.js';
 import { apiRequest } from './api.js';
 import BusinessDashboard from './BusinessDashboard.jsx';
 import PublicTransparencyPage from './PublicTransparencyPage.jsx';
@@ -269,7 +269,7 @@ function HomePage({ products, productsLoading, onSelectProduct, onPartner }) {
         <section className="hero-section">
         <div className="hero-intro">
             <h1>VERITY</h1>
-            <p className="hero-description">Turn Sustainability Claims Into Verified Sales.</p>
+            <p className="hero-description">Turn Sustainability Claims Into Verified Sales</p>
           </div>
           <BranchArtwork />
       </section>
@@ -312,7 +312,7 @@ function HomePage({ products, productsLoading, onSelectProduct, onPartner }) {
   );
 }
 
-function CompanyLogin({ onSignedIn }) {
+function CompanyLogin({ onSignedIn, onSignUp }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -383,7 +383,93 @@ function CompanyLogin({ onSignedIn }) {
               {error && <p className="api-alert" role="alert">{error}</p>}
               <p className="company-login-demo-note">Use the account created for your company in Supabase Auth.</p>
             </form>
+            <button className="login-secondary-button company-auth-switch" type="button" onClick={onSignUp}>Don’t have an account? Sign up!</button>
         </>
+      </section>
+    </main>
+  );
+}
+
+function CompanySignup({ onSignedUp, onBackToLogin }) {
+  const [companyName, setCompanyName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [confirmationEmail, setConfirmationEmail] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError('');
+    if (password !== confirmPassword) {
+      setError('Your passwords don’t match.');
+      return;
+    }
+    if (!authConfigured) {
+      setError('Supabase is not configured. Add the frontend URL and publishable key to frontend/.env.local.');
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await signUpWithPassword({ companyName: companyName.trim(), email: email.trim(), password });
+      if (result.session) {
+        setPassword('');
+        setConfirmPassword('');
+        onSignedUp(result.session);
+      } else {
+        setConfirmationEmail(result.email || email.trim());
+      }
+    } catch (signupError) {
+      setError(signupError.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <main className="company-login-page company-signup-page">
+      <section className="company-login-intro">
+        <p className="eyebrow"><Mark className="company-login-leaf" /> VERITY FOR COMPANIES</p>
+        <h1>Start building<br /><em>trust with proof.</em></h1>
+        <p className="company-login-lead">Create a company account to organize product evidence and make verified claims easier to share.</p>
+        <div className="company-login-benefits">
+          <div><span>01</span><p><strong>One clear workspace</strong><small>Keep product claims and supporting documents together.</small></p></div>
+          <div><span>02</span><p><strong>Evidence customers can follow</strong><small>Build transparency pages from your verified information.</small></p></div>
+          <div><span>03</span><p><strong>Plans for your stage</strong><small>Choose the tools that fit the way your brand works.</small></p></div>
+        </div>
+      </section>
+
+      <section className="company-login-panel" aria-labelledby="company-signup-title">
+        <div className="company-login-panel-brand"><Mark /><span>COMPANY PORTAL</span></div>
+        {confirmationEmail ? (
+          <div className="company-login-success" role="status">
+            <span className="company-login-success-icon" aria-hidden="true">✓</span>
+            <p className="eyebrow">ONE LAST STEP</p>
+            <h2 id="company-signup-title">Check your inbox</h2>
+            <p className="company-login-success-copy">We sent a confirmation link to <strong>{confirmationEmail}</strong>. Confirm your email, then log in to your company workspace.</p>
+            <button className="login-secondary-button" type="button" onClick={onBackToLogin}>Back to login <ArrowIcon /></button>
+          </div>
+        ) : (
+          <>
+            <p className="eyebrow">CREATE A COMPANY ACCOUNT</p>
+            <h2 id="company-signup-title">Sign up</h2>
+            <p className="company-login-panel-copy">Set up your brand’s Verity workspace.</p>
+            <form className="company-login-form" onSubmit={handleSubmit}>
+              <label htmlFor="signup-company-name">Company name</label>
+              <input id="signup-company-name" name="companyName" type="text" autoComplete="organization" placeholder="Your company" value={companyName} onChange={(event) => setCompanyName(event.target.value)} required />
+              <label htmlFor="signup-company-email">Work email</label>
+              <input id="signup-company-email" name="email" type="email" autoComplete="email" placeholder="you@company.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
+              <label htmlFor="signup-company-password">Password</label>
+              <input id="signup-company-password" name="password" type="password" autoComplete="new-password" minLength={8} placeholder="At least 8 characters" value={password} onChange={(event) => setPassword(event.target.value)} required />
+              <label htmlFor="signup-company-confirm-password">Confirm password</label>
+              <input id="signup-company-confirm-password" name="confirmPassword" type="password" autoComplete="new-password" minLength={8} placeholder="Re-enter your password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required />
+              <button className="company-login-submit" type="submit" disabled={busy}>{busy ? 'Creating account…' : 'Create account'} <ArrowIcon /></button>
+              {error && <p className="api-alert" role="alert">{error}</p>}
+            </form>
+            <button className="login-secondary-button company-auth-switch" type="button" onClick={onBackToLogin}>Already have an account? Log in</button>
+          </>
+        )}
       </section>
     </main>
   );
@@ -439,7 +525,7 @@ function PartnerPlansPage() {
       <section className="partner-intro section-wrap">
         <p className="eyebrow"><span className="eyebrow-mark">✳</span>VERITY FOR BRANDS</p>
         <h1>Make trust part<br /><em>of your story.</em></h1>
-        <p className="partner-intro-copy">Give your customers a clearer view of the evidence behind your sustainability claims.</p>
+        <p className="partner-intro-copy">Choose your subscription below !</p>
       </section>
       <section className="partner-plans section-wrap" aria-label="Subscription plans">
         <div className="partner-plans-heading">
@@ -582,8 +668,22 @@ export default function App() {
 
   function openCompanyLogin() {
     setSelectedBrand(null);
+    setPublicSlug('');
     setActivePage(session ? 'dashboard' : 'login');
     setQuery('');
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function openCompanySignup() {
+    setSelectedBrand(null);
+    setPublicSlug('');
+    setActivePage('signup');
+    setQuery('');
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function returnToCompanyLogin() {
+    setActivePage('login');
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
@@ -597,7 +697,7 @@ export default function App() {
   return (
     <div className={`app-shell${activePage === 'partner' ? ' partner-active' : ''}`}>
       <Header query={query} setQuery={setQuery} products={products} onSelectProduct={openProduct} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} isSignedIn={Boolean(session)} />
-      {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'login' ? <CompanyLogin onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} productsLoading={productsLoading} onSelectProduct={openProduct} onPartner={() => navigateTo('partner')} />}
+      {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'signup' ? <CompanySignup onBackToLogin={returnToCompanyLogin} onSignedUp={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'login' ? <CompanyLogin onSignUp={openCompanySignup} onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} productsLoading={productsLoading} onSelectProduct={openProduct} onPartner={() => navigateTo('partner')} />}
     </div>
   );
 }

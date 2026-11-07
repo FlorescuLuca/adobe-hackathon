@@ -37,6 +37,19 @@ export async function signInWithPassword({ email, password }) {
   return saveSession(await authRequest('token?grant_type=password', { email, password }));
 }
 
+export async function signUpWithPassword({ companyName, email, password }) {
+  if (!authConfigured) throw new Error('Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in frontend/.env.local.');
+  const payload = await authRequest('signup', {
+    email,
+    password,
+    data: { company_name: companyName },
+  });
+  if (payload.access_token && payload.refresh_token) {
+    return { session: saveSession(payload), confirmationRequired: false };
+  }
+  return { session: null, confirmationRequired: true, email: payload.user?.email || email };
+}
+
 export async function getValidSession(current = storedSession()) {
   if (!current?.refresh_token || !authConfigured) return null;
   if (current.expires_at > Math.floor(Date.now() / 1000) + 60) return current;
