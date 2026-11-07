@@ -1792,7 +1792,14 @@ body { font-size: 18px; line-height: 1.55; }
   text-shadow: none;
 }
 .partner-intro h1 em { color: #354c3d; }
+.partner-intro .eyebrow { color: #2f414a; }
 .partner-intro-copy { color: #2f414a; text-shadow: none; }
+.partner-intro::before {
+  background: radial-gradient(circle at 38% 38%, rgba(255, 255, 255, .96) 0%, rgba(205, 239, 216, .9) 16%, rgba(45, 164, 97, .84) 39%, rgba(101, 157, 178, .52) 66%, transparent 88%);
+}
+.partner-intro::after {
+  background: radial-gradient(circle at 42% 37%, rgba(255, 255, 255, .98) 0%, rgba(213, 235, 243, .92) 18%, rgba(79, 139, 171, .86) 43%, rgba(73, 166, 113, .56) 68%, transparent 90%);
+}
 
 /* Company login page restored on top of the merged partner-plans page. */
 .primary-nav .company-login-nav {
