@@ -116,6 +116,13 @@ def list_claims(product_id: uuid.UUID, user_id: str = Depends(get_user_id), clie
     return client.table("claims").select("*").eq("product_id", str(product_id)).order("created_at").execute().data
 
 
+@app.get(api + "/products/{product_id}/documents")
+def list_documents(product_id: uuid.UUID, user_id: str = Depends(get_user_id), client: Client = Depends(get_supabase)):
+    owned_product(client, user_id, str(product_id))
+    return (client.table("documents").select("id,product_id,filename,content_type,file_size,processing_status,created_at")
+            .eq("product_id", str(product_id)).order("created_at", desc=True).execute().data)
+
+
 @app.patch(api + "/claims/{claim_id}")
 def update_claim(claim_id: uuid.UUID, payload: ClaimUpdate, user_id: str = Depends(get_user_id), client: Client = Depends(get_supabase)):
     company = company_for_user(client, user_id)
@@ -219,6 +226,12 @@ async def create_assessment(product_id: uuid.UUID, payload: AssessmentRequest, u
     except Exception as exc:
         db_failure(exc)
     return {"id": run["id"], "created_at": run["created_at"], "result": result.model_dump(mode="json")}
+
+
+@app.get(api + "/public/products")
+def list_public_products(client: Client = Depends(get_supabase)):
+    return (client.table("products").select("id,name,description,slug")
+            .eq("is_published", True).order("created_at", desc=True).limit(100).execute().data)
 
 
 @app.get(api + "/public/products/{slug}")

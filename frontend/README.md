@@ -1,12 +1,23 @@
-# Verity frontend
+# VERITY frontend
 
-Responsive React prototype for Verity, an evidence layer for sustainability claims at the point of sale.
+Vite/React consumer site and company dashboard. The app signs users in through Supabase Auth, sends the user access token to FastAPI for company operations, and loads public transparency pages by product slug.
 
-## Run locally
+## Configure
 
-```sh
+Copy `.env.example` to `.env.local` and set the Supabase project URL and publishable key. `VITE_BACKEND_URL` defaults to `http://127.0.0.1:8000/api/v1`. Never put the Supabase secret/service-role key or OpenAI key in frontend variables.
+
+```powershell
+if (-not (Test-Path .env.local)) { Copy-Item .env.example .env.local }
+notepad .env.local
 npm install
 npm run dev
 ```
 
-The current brand profiles and evidence summaries are sample frontend content. Replace the `brands` data in `src/App.jsx` with the API response when the backend is ready.
+The Vite development server uses `http://localhost:3000`, which is included in the backend's default CORS origins. The backend and AI engine should be running separately.
+
+## Connected flows
+
+- Company login uses an existing Supabase Auth email/password account.
+- Company dashboard creates a company, creates/selects products, uploads PDFs, adds claims, and starts assessments.
+- Publishing a product exposes `/p/{slug}`; its page displays the latest stored assessment and evidence references.
+- Homepage cards and search load published products from the backend.

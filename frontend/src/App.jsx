@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ShaderGradient, ShaderGradientCanvas } from '@shadergradient/react';
+import { authConfigured, getValidSession, signInWithPassword, signOut as signOutAuth } from './auth.js';
+import { apiRequest } from './api.js';
+import BusinessDashboard from './BusinessDashboard.jsx';
+import PublicTransparencyPage from './PublicTransparencyPage.jsx';
 
 const brands = [
   {
@@ -98,14 +101,14 @@ function ArrowIcon({ diagonal = false }) {
   );
 }
 
-function Header({ query, setQuery, onSelectBrand, onHome, onNavigate, onCompanyLogin }) {
+function Header({ query, setQuery, products, onSelectProduct, onHome, onNavigate, onCompanyLogin, isSignedIn }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInput = useRef(null);
   const results = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return brands.slice(0, 3);
-    return brands.filter((brand) => `${brand.name} ${brand.category} ${brand.claim}`.toLowerCase().includes(normalized));
-  }, [query]);
+    if (!normalized) return products.slice(0, 3);
+    return products.filter((product) => `${product.name} ${product.description || ''} ${product.slug}`.toLowerCase().includes(normalized));
+  }, [products, query]);
 
   useEffect(() => {
     function handleShortcut(event) {
@@ -129,28 +132,28 @@ function Header({ query, setQuery, onSelectBrand, onHome, onNavigate, onCompanyL
           <SearchIcon />
           <input
             ref={searchInput}
-            aria-label="Search verified brands"
-            placeholder="Search a brand or claim"
+            aria-label="Search published products"
+            placeholder="Search published products"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onFocus={() => setSearchOpen(true)}
             onBlur={() => window.setTimeout(() => setSearchOpen(false), 150)}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' && results[0]) onSelectBrand(results[0]);
+              if (event.key === 'Enter' && results[0]) onSelectProduct(results[0]);
               if (event.key === 'Escape') setSearchOpen(false);
             }}
           />
           <kbd>⌘ K</kbd>
           {searchOpen && (
             <div className="search-results">
-              <p className="search-label">{query ? 'MATCHING BRANDS' : 'POPULAR BRANDS'}</p>
-              {results.length ? results.map((brand) => (
-                <button key={brand.name} type="button" className="search-result" onMouseDown={() => onSelectBrand(brand)}>
-                  <span className={`mini-brand ${brand.tone}`}>{brand.short}</span>
-                  <span><strong>{brand.name}</strong><small>{brand.category} · {brand.score} trust score</small></span>
+              <p className="search-label">{query ? 'PUBLISHED PRODUCTS' : 'RECENTLY PUBLISHED'}</p>
+              {results.length ? results.map((product) => (
+                <button key={product.id} type="button" className="search-result" onMouseDown={() => onSelectProduct(product)}>
+                  <span className="mini-brand mint">{product.name.slice(0, 2).toUpperCase()}</span>
+                  <span><strong>{product.name}</strong><small>{product.description || 'Transparency profile'} · /{product.slug}</small></span>
                   <ArrowIcon diagonal />
                 </button>
-              )) : <p className="no-results">No verified brands match that search yet.</p>}
+              )) : <p className="no-results">No published products match that search.</p>}
             </div>
           )}
         </div>
@@ -159,8 +162,8 @@ function Header({ query, setQuery, onSelectBrand, onHome, onNavigate, onCompanyL
           <button type="button" onClick={() => onNavigate('about')}>About us</button>
           <button type="button" onClick={() => onNavigate('partner')}>Partner with us</button>
           <button className="company-login-nav" type="button" onClick={onCompanyLogin}>
-            <span className="company-login-full">Login</span>
-            <span className="company-login-short">Log in</span>
+            <span className="company-login-full">{isSignedIn ? 'Dashboard' : 'Login'}</span>
+            <span className="company-login-short">{isSignedIn ? 'Dashboard' : 'Log in'}</span>
           </button>
           <a href="mailto:hello@verity.eco">Contact</a>
         </nav>
@@ -211,28 +214,7 @@ function BranchArtwork() {
 
   return (
     <div className="branch-art" aria-label="Moss and lichen growing on a fallen tree branch" role="img">
-      <div className="shader-field" aria-hidden="true">
-        <ShaderGradientCanvas style={{ position: 'absolute', inset: 0 }} pixelDensity={1} fov={45}>
-          <ShaderGradient
-            type="waterPlane"
-            animate="on"
-            uSpeed={1.15}
-            uStrength={5.8}
-            uDensity={1.9}
-            uFrequency={2.7}
-            smoothTime={0.55}
-            enableTransition
-            color1="#f7fbfd"
-            color2="#526b7d"
-            color3="#c5d6e1"
-            brightness={1.25}
-            grain="on"
-            grainBlending={0.4}
-            cDistance={3.6}
-            cPolarAngle={90}
-          />
-        </ShaderGradientCanvas>
-      </div>
+      <div className="shader-field" aria-hidden="true" />
       <img ref={branchRef} className="branch-image" src="/mossy-branch.png" alt="" />
       <div className="branch-label"><span className="status-dot" /> MATERIAL TRACEABILITY · VERIFIED</div>
     </div>
@@ -263,32 +245,25 @@ const brandProductPositions = {
   KS: '100% 100%',
 };
 
-function BrandCard({ brand, onSelectBrand }) {
+function ProductCard({ product, onSelectProduct, index }) {
+  const tones = ['mint', 'blue', 'violet', 'amber'];
+  const tone = tones[index % tones.length];
   return (
-    <button className="brand-card" type="button" onClick={() => onSelectBrand(brand)} aria-label={`Open ${brand.name} brand profile and evidence`}>
-      <span
-        className={`brand-card-visual ${brand.tone}`}
-        role="img"
-        aria-label={`${brand.name} sample ${brand.category.toLowerCase()} product`}
-        style={{ '--product-position': brandProductPositions[brand.short] || 'center' }}
-      />
+    <button className="brand-card" type="button" onClick={() => onSelectProduct(product)} aria-label={`Open ${product.name} transparency profile`}>
+      <span className={`brand-card-visual ${tone}`} role="img" aria-label="Product transparency profile" />
       <span className="brand-card-copy">
-        <span className="brand-card-title"><span className="brand-category">{brand.category}</span><strong className="brand-name">{brand.name}</strong></span>
-        <span className="brand-claim">“{brand.claim}”</span>
+        <span className="brand-card-title"><span className="brand-category">PUBLISHED PROFILE</span><strong className="brand-name">{product.name}</strong></span>
+        <span className="brand-claim">{product.description || 'Explore the product’s published sustainability assessment and supporting evidence.'}</span>
         <span className="brand-card-bottom">
-          <span className="brand-card-score" aria-label={`Trust score ${brand.score} out of 100`}>
-            <span className="status-dot" />
-            <strong>{brand.score}</strong>
-            <span className="brand-score-label">Trust score</span>
-          </span>
-          <span className="brand-profile-link">Open brand profile <ArrowIcon diagonal /></span>
+          <span className="brand-card-score"><span className="status-dot" /><span className="brand-score-label">/{product.slug}</span></span>
+          <span className="brand-profile-link">View transparency profile <ArrowIcon diagonal /></span>
         </span>
       </span>
     </button>
   );
 }
 
-function HomePage({ onSelectBrand, onPartner }) {
+function HomePage({ products, productsLoading, onSelectProduct, onPartner }) {
   return (
     <main>
         <section className="hero-section">
@@ -309,9 +284,9 @@ function HomePage({ onSelectBrand, onPartner }) {
       <section className="brands-section section-wrap" id="trusted-brands">
         <div className="section-heading">
           <div className="section-title"><p className="eyebrow">A MORE OPEN MARKET</p><h2>Good brands.<br /><em>Clear receipts.</em></h2></div>
-          <div className="section-heading-aside"><p>Explore a growing circle of brands making their sustainability claims easier to trust.</p><span className="heading-count">04 <i>VERIFIED BRANDS</i></span></div>
+            <div className="section-heading-aside"><p>Explore published product profiles and the evidence companies provide for their sustainability claims.</p><span className="heading-count">{String(products.length).padStart(2, '0')} <i>PUBLISHED PROFILES</i></span></div>
         </div>
-        <div className="brand-grid">{brands.map((brand) => <BrandCard key={brand.name} brand={brand} onSelectBrand={onSelectBrand} />)}</div>
+        {products.length ? <div className="brand-grid">{products.map((product, index) => <ProductCard key={product.id} product={product} index={index} onSelectProduct={onSelectProduct} />)}</div> : <p className="no-published-products">{productsLoading ? 'Loading published product profiles…' : 'No product profiles have been published yet.'}</p>}
         <div className="brand-section-footer"><span className="tiny-orbit">✳</span><span>Verity is growing a more transparent way to shop.</span><button type="button" className="partner-footer-link" onClick={onPartner}>Partner with us <ArrowIcon /></button></div>
       </section>
 
@@ -337,15 +312,29 @@ function HomePage({ onSelectBrand, onPartner }) {
   );
 }
 
-function CompanyLogin() {
+function CompanyLogin({ onSignedIn }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loggedInEmail, setLoggedInEmail] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    setLoggedInEmail(email.trim());
-    setPassword('');
+    if (!authConfigured) {
+      setError('Supabase is not configured. Add the frontend URL and publishable key to frontend/.env.local.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const nextSession = await signInWithPassword({ email: email.trim(), password });
+      setPassword('');
+      onSignedIn(nextSession);
+    } catch (signInError) {
+      setError(signInError.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -363,25 +352,10 @@ function CompanyLogin() {
 
       <section className="company-login-panel" aria-labelledby="company-login-title">
         <div className="company-login-panel-brand"><Mark /><span>COMPANY PORTAL</span></div>
-        {loggedInEmail ? (
-          <div className="company-login-success" role="status" aria-live="polite">
-            <span className="company-login-success-icon" aria-hidden="true">✓</span>
-            <p className="eyebrow">ACCESS GRANTED</p>
-            <h2 id="company-login-title">You logged in!</h2>
-            <p className="company-login-success-copy">You’re signed in as <strong>{loggedInEmail}</strong>. Your company access is ready.</p>
-            <div className="company-subscription-note">
-              <span>COMPANY SUBSCRIPTIONS</span>
-              <p>Verity plans and subscription tools are ready to be connected to this portal.</p>
-            </div>
-            <button className="login-secondary-button" type="button" onClick={() => { setLoggedInEmail(''); setEmail(''); }}>
-              Sign in with another email <ArrowIcon />
-            </button>
-          </div>
-        ) : (
-          <>
+        <>
             <p className="eyebrow">BRAND ACCESS</p>
             <h2 id="company-login-title">Login</h2>
-            <p className="company-login-panel-copy">Sign in to explore subscriptions and manage your Verity company profile.</p>
+            <p className="company-login-panel-copy">Sign in to manage products, evidence documents, and marketing claims.</p>
             <form className="company-login-form" onSubmit={handleSubmit}>
               <label htmlFor="company-email">Work email</label>
               <input
@@ -405,11 +379,11 @@ function CompanyLogin() {
                 onChange={(event) => setPassword(event.target.value)}
                 required
               />
-              <button className="company-login-submit" type="submit">Log in <ArrowIcon /></button>
-              <p className="company-login-demo-note">Demo access: no account verification, database, or backend is connected.</p>
+              <button className="company-login-submit" type="submit" disabled={busy}>{busy ? 'Signing in…' : 'Log in'} <ArrowIcon /></button>
+              {error && <p className="api-alert" role="alert">{error}</p>}
+              <p className="company-login-demo-note">Use the account created for your company in Supabase Auth.</p>
             </form>
-          </>
-        )}
+        </>
       </section>
     </main>
   );
@@ -540,8 +514,39 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [activePage, setActivePage] = useState('home');
+  const [session, setSession] = useState(null);
+  const [publicSlug, setPublicSlug] = useState(() => decodeURIComponent(window.location.pathname.match(/^\/p\/([^/]+)/)?.[1] || ''));
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+
+  useEffect(() => {
+    getValidSession().then(setSession);
+  }, []);
+
+  useEffect(() => {
+    if (activePage !== 'home' || publicSlug) return;
+    let cancelled = false;
+    setProductsLoading(true);
+    apiRequest('/public/products')
+      .then((publishedProducts) => { if (!cancelled) setProducts(publishedProducts); })
+      .catch(() => { if (!cancelled) setProducts([]); })
+      .finally(() => { if (!cancelled) setProductsLoading(false); });
+    return () => { cancelled = true; };
+  }, [activePage, publicSlug]);
+
+  useEffect(() => {
+    function syncPath() {
+      setPublicSlug(decodeURIComponent(window.location.pathname.match(/^\/p\/([^/]+)/)?.[1] || ''));
+      setSelectedBrand(null);
+      setActivePage('home');
+    }
+    window.addEventListener('popstate', syncPath);
+    return () => window.removeEventListener('popstate', syncPath);
+  }, []);
 
   function showHome() {
+    if (window.location.pathname !== '/') window.history.pushState({}, '', '/');
+    setPublicSlug('');
     setSelectedBrand(null);
     setActivePage('home');
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -565,8 +570,11 @@ export default function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
   }
 
-  function openBrand(brand) {
-    setSelectedBrand(brand);
+  function openProduct(product) {
+    const slug = product.slug;
+    window.history.pushState({}, '', `/p/${encodeURIComponent(slug)}`);
+    setPublicSlug(slug);
+    setSelectedBrand(null);
     setActivePage('home');
     setQuery('');
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -574,15 +582,22 @@ export default function App() {
 
   function openCompanyLogin() {
     setSelectedBrand(null);
-    setActivePage('login');
+    setActivePage(session ? 'dashboard' : 'login');
     setQuery('');
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
+  async function signOut() {
+    await signOutAuth();
+    setSession(null);
+    setActivePage('home');
+    showHome();
+  }
+
   return (
     <div className={`app-shell${activePage === 'partner' ? ' partner-active' : ''}`}>
-      <Header query={query} setQuery={setQuery} onSelectBrand={openBrand} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} />
-      {selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'login' ? <CompanyLogin /> : <HomePage onSelectBrand={openBrand} onPartner={() => navigateTo('partner')} />}
+      <Header query={query} setQuery={setQuery} products={products} onSelectProduct={openProduct} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} isSignedIn={Boolean(session)} />
+      {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'login' ? <CompanyLogin onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} productsLoading={productsLoading} onSelectProduct={openProduct} onPartner={() => navigateTo('partner')} />}
     </div>
   );
 }
