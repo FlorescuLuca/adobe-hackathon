@@ -173,9 +173,9 @@ function BranchArtwork() {
     let frame = 0;
 
     function animateDrift() {
-      currentDrift += (targetDrift - currentDrift) * 0.16;
+      currentDrift += (targetDrift - currentDrift) * 0.24;
       branchRef.current?.style.setProperty('--scroll-drift', `${(-currentDrift).toFixed(1)}px`);
-      if (Math.abs(targetDrift - currentDrift) > 0.35) {
+      if (Math.abs(targetDrift - currentDrift) > 0.25) {
         frame = window.requestAnimationFrame(animateDrift);
       } else {
         currentDrift = targetDrift;
@@ -189,7 +189,7 @@ function BranchArtwork() {
       if (!hero) return;
       const heroTop = hero.getBoundingClientRect().top;
       const progress = Math.min(1, Math.max(0, -heroTop / (hero.offsetHeight * 0.72)));
-      targetDrift = progress * Math.min(window.innerHeight * 0.38, 300);
+      targetDrift = progress * Math.min(window.innerHeight * 0.27, 210);
       if (!frame) frame = window.requestAnimationFrame(animateDrift);
     }
 
@@ -210,18 +210,18 @@ function BranchArtwork() {
           <ShaderGradient
             type="plane"
             animate="on"
-            uSpeed={0.56}
-            uStrength={3.8}
-            uDensity={2.15}
-            uFrequency={2.35}
+            uSpeed={0.78}
+            uStrength={4.4}
+            uDensity={2.45}
+            uFrequency={2.7}
             smoothTime={0.8}
             enableTransition
             color1="#ffffff"
-            color2="#96a8b4"
+            color2="#8799a5"
             color3="#e7eef2"
             brightness={1.1}
             grain="on"
-            grainBlending={0.32}
+            grainBlending={0.4}
             cDistance={3.6}
             cPolarAngle={90}
           />
@@ -257,7 +257,7 @@ function HomePage({ onSelectBrand }) {
     <main>
         <section className="hero-section">
         <div className="hero-intro">
-            <h1>Verity</h1>
+            <h1>VERITY</h1>
             <p className="hero-description">Turn Sustainability Claims Into Verified Sales.</p>
             <div className="hero-actions">
               <button className="button button-primary" type="button" onClick={() => document.getElementById('trusted-brands')?.scrollIntoView({ behavior: 'smooth' })}>Explore verified brands <ArrowIcon /></button>

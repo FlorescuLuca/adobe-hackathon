@@ -1272,3 +1272,37 @@ body { font-size: 18px; line-height: 1.55; }
 @media (max-width: 480px) {
   .hero-intro h1 { font-size: clamp(55px, 15vw, 78px);
 }
+}
+
+/* Stronger color travel and a glass plate for the hero's lower copy */
+.shader-field {
+  background:
+    radial-gradient(ellipse at 18% 28%, rgba(161, 181, 195, .98), transparent 46%),
+    radial-gradient(ellipse at 80% 72%, rgba(205, 217, 226, .96), transparent 44%),
+    #fff;
+  animation-duration: 6s;
+}
+.shader-field::after {
+  background-image:
+    radial-gradient(ellipse at 26% 40%, rgba(122, 145, 160, .88) 0, rgba(173, 191, 203, .68) 36%, transparent 64%),
+    radial-gradient(ellipse at 76% 70%, rgba(202, 216, 225, .93) 0, transparent 54%);
+  opacity: .88;
+  animation-duration: 6s;
+}
+.hero-description {
+  display: table;
+  width: fit-content;
+  max-width: min(680px, 90vw);
+  margin: 32px auto 20px;
+  padding: 15px 26px;
+  border: 1px solid rgba(255, 255, 255, .64);
+  border-radius: 22px;
+  color: #40515d;
+  background: linear-gradient(135deg, rgba(250, 252, 254, .58), rgba(227, 236, 242, .34));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 10px 30px rgba(51, 70, 84, .09);
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+}
+@media (max-width: 760px) {
+  .hero-description { display: block; width: fit-content; max-width: 90vw; margin: 24px auto 18px; padding: 13px 18px; }
+}
