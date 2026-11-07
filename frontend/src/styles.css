@@ -2273,8 +2273,8 @@ body { font-size: 18px; line-height: 1.55; }
 <<<<<<< Updated upstream
 .hero-intro h1 { font-size: clamp(58px, 10vw, 180px); }
 =======
-.hero-intro h1 { font-size: clamp(68px, 13.5vw, 240px); letter-spacing: .015em; }
-.hero-intro { position: absolute; top: 43%; left: 50%; width: max-content; max-width: 90%; transform: translate(-50%, calc(-50% - 30px + var(--text-scroll-drift, 0px))); text-align: center; }
+.hero-intro h1 { font-size: clamp(68px, 12.8vw, 228px); letter-spacing: .015em; }
+.hero-intro { position: absolute; top: 43%; left: 50%; width: max-content; max-width: 90%; transform: translate(-50%, calc(-50% - 50px + var(--text-scroll-drift, 0px))); text-align: center; }
 >>>>>>> Stashed changes
 .hero-intro h1 em,
 .section-heading h2 em,
@@ -2359,9 +2359,9 @@ body { font-size: 18px; line-height: 1.55; }
   .hero-section { height: clamp(640px, 92svh, 820px); }
   .hero-intro h1 { font-size: clamp(58px, 10vw, 76px); }
 =======
-  .hero-intro { top: 43%; left: 50%; transform: translate(-50%, calc(-50% - 30px + var(--text-scroll-drift, 0px))); }
+  .hero-intro { top: 43%; left: 50%; transform: translate(-50%, calc(-50% - 50px + var(--text-scroll-drift, 0px))); }
   .hero-section { height: clamp(640px, 92svh, 820px); }
-  .hero-intro h1 { font-size: clamp(65px, 14vw, 104px); }
+  .hero-intro h1 { font-size: clamp(65px, 13.5vw, 100px); }
 >>>>>>> Stashed changes
   .branch-image { left: 50%; bottom: -16svh; width: 140vw; }
   .about-section { gap: 42px; padding-top: 82px; padding-bottom: 82px; }
