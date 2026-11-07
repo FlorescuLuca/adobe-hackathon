@@ -1534,6 +1534,136 @@ body { font-size: 18px; line-height: 1.55; }
   .hero-intro h1 { font-size: clamp(72px, 22vw, 100px); }
 }
 
+/* Company login page restored on top of the merged partner-plans page. */
+.primary-nav .company-login-nav {
+  padding: 8px 0;
+  border: 0;
+  color: #445562;
+  background: transparent;
+  cursor: pointer;
+}
+.primary-nav .company-login-nav:hover { color: #1d2a34; background: transparent; }
+.company-login-short { display: none; }
+.company-login-page {
+  --company-leaf: #a4b98c;
+  position: relative;
+  display: grid;
+  width: min(1160px, calc(100% - 12vw));
+  min-height: calc(100svh - 78px);
+  grid-template-columns: minmax(0, 1fr) minmax(370px, 480px);
+  align-items: center;
+  gap: clamp(42px, 8vw, 112px);
+  margin: 0 auto;
+  padding: 62px 0 88px;
+  color: #edf3f0;
+}
+.company-login-intro .eyebrow { display: flex; align-items: center; gap: 10px; color: #a8c2b5; }
+.company-login-leaf { width: 19px; height: 19px; color: var(--company-leaf); }
+.company-login-intro h1 {
+  margin: 0;
+  color: #f1f5f2;
+  font: 400 clamp(48px, 5.7vw, 76px)/.98 'DM Serif Display', Georgia, serif;
+  letter-spacing: -.045em;
+}
+.company-login-intro h1 em { color: var(--company-leaf); font-weight: 400; }
+.company-login-lead { max-width: 600px; margin: 22px 0 30px; color: #c5d2ce; font-size: 19px; line-height: 1.65; }
+.company-login-benefits { display: grid; max-width: 620px; }
+.company-login-benefits > div { display: grid; grid-template-columns: 42px 1fr; gap: 13px; padding: 15px 0; border-top: 1px solid rgba(219, 234, 227, .15); }
+.company-login-benefits > div > span { color: var(--company-leaf); font: 13px var(--mono); }
+.company-login-benefits p { display: grid; gap: 3px; margin: 0; }
+.company-login-benefits strong { color: #edf3f0; font-size: 16px; font-weight: 600; }
+.company-login-benefits small { color: #aebfba; font-size: 14px; line-height: 1.5; }
+.company-login-panel {
+  padding: clamp(25px, 3vw, 38px);
+  border: 1px solid rgba(227, 239, 244, .2);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(216, 230, 238, .11), rgba(92, 116, 132, .08));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 24px 70px rgba(0, 0, 0, .23);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+}
+.company-login-panel-brand { display: flex; align-items: center; gap: 9px; margin-bottom: 31px; color: #a8bdb6; font: 12px var(--mono); letter-spacing: .12em; }
+.company-login-panel-brand svg { width: 22px; height: 22px; color: var(--company-leaf); }
+.company-login-panel > .eyebrow, .company-login-success > .eyebrow { margin-bottom: 9px; color: var(--company-leaf); }
+.company-login-panel h2 { margin: 0; color: #f0f5f2; font: 400 36px/1.1 'DM Serif Display', Georgia, serif; letter-spacing: -.025em; }
+.company-login-panel-copy { margin: 11px 0 25px; color: #c1ceca; font-size: 16px; line-height: 1.6; }
+.company-login-form { display: grid; gap: 10px; }
+.company-login-form label { margin-top: 6px; color: #e5eeea; font-size: 15px; font-weight: 600; }
+.company-login-form input {
+  width: 100%;
+  height: 52px;
+  padding: 0 15px;
+  border: 1px solid rgba(220, 235, 229, .24);
+  border-radius: 10px;
+  outline: 0;
+  color: #f2f7f4;
+  background: rgba(5, 16, 17, .27);
+  font-size: 16px;
+  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.company-login-form input::placeholder { color: #9bacaa; }
+.company-login-form input:focus { border-color: rgba(164, 185, 140, .8); background: rgba(5, 16, 17, .4); box-shadow: 0 0 0 3px rgba(164, 185, 140, .14); }
+.company-login-submit {
+  display: inline-flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 13px;
+  border: 1px solid rgba(227, 248, 234, .76);
+  border-radius: 999px;
+  color: #173327;
+  background: #c9ead7;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .2s ease, background .2s ease;
+}
+.company-login-submit svg, .login-secondary-button svg { width: 18px; height: 18px; }
+.company-login-submit:hover { transform: translateY(-2px); background: #e0f4e7; }
+.company-login-demo-note { margin: 6px 0 0; color: #aebfba; font-size: 13px; line-height: 1.5; text-align: center; }
+.company-login-success { display: grid; justify-items: start; }
+.company-login-success-icon { display: grid; width: 52px; height: 52px; place-items: center; margin-bottom: 23px; border: 1px solid rgba(164, 185, 140, .5); border-radius: 50%; color: var(--company-leaf); background: rgba(164, 185, 140, .1); font-size: 27px; }
+.company-login-success-copy { margin: 14px 0 20px; color: #cbd7d2; font-size: 16px; line-height: 1.6; }
+.company-login-success-copy strong { color: #f2f6f4; font-weight: 600; overflow-wrap: anywhere; }
+.company-subscription-note { width: 100%; padding: 16px; border: 1px solid rgba(220, 235, 229, .16); border-radius: 13px; background: rgba(4, 16, 17, .18); }
+.company-subscription-note span { color: #b6d5c2; font: 11px var(--mono); letter-spacing: .1em; }
+.company-subscription-note p { margin: 8px 0 0; color: #c2d0ca; font-size: 14px; line-height: 1.55; }
+.login-secondary-button { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; padding: 8px 0; border: 0; color: #dce9e2; background: transparent; font-size: 15px; cursor: pointer; }
+.login-secondary-button:hover { color: var(--company-leaf); }
+
+@media (max-width: 960px) {
+  .app-shell { padding-top: 104px; }
+  .site-header { top: 10px; width: calc(100vw - 20px); border-radius: 24px; }
+  .header-inner { display: flex; min-height: 86px; flex-wrap: wrap; gap: 4px 12px; padding: 5px 14px 6px; }
+  .header-search { position: relative; left: auto; order: 1; width: min(410px, calc(100% - 150px)); min-width: 0; height: 38px; margin-left: auto; transform: none; }
+  .primary-nav { order: 2; width: 100%; justify-content: center; gap: clamp(13px, 3vw, 25px); margin: 0; padding: 0 0 4px; }
+  .company-login-full { display: none; }
+  .company-login-short { display: inline; }
+  .company-login-page { width: min(640px, calc(100% - 44px)); min-height: 0; grid-template-columns: 1fr; gap: 34px; padding: 55px 0 75px; }
+  .company-login-intro h1 { font-size: clamp(48px, 8vw, 68px); }
+  .company-login-panel { width: 100%; }
+}
+@media (max-width: 520px) {
+  .app-shell { padding-top: 98px; }
+  .site-header { border-radius: 22px; }
+  .header-inner { min-height: 80px; padding-inline: 11px; }
+  .header-search { width: calc(100% - 137px); height: 36px; }
+  .primary-nav { gap: clamp(8px, 2.5vw, 13px); }
+  .primary-nav button, .primary-nav a { font-size: 10px; }
+  .company-login-page { width: calc(100% - 34px); gap: 27px; padding: 43px 0 55px; }
+  .company-login-intro h1 { font-size: clamp(43px, 12vw, 56px); }
+  .company-login-lead { margin: 16px 0 22px; font-size: 16px; }
+  .company-login-benefits > div { grid-template-columns: 34px 1fr; gap: 10px; padding: 12px 0; }
+  .company-login-benefits strong { font-size: 15px; }
+  .company-login-benefits small { font-size: 13px; }
+  .company-login-panel { padding: 23px 19px; border-radius: 20px; }
+  .company-login-panel-brand { margin-bottom: 25px; }
+  .company-login-panel h2 { font-size: 32px; }
+  .company-login-panel-copy { font-size: 15px; }
+  .company-login-demo-note { font-size: 12px; }
+}
+
 /* Match the brand cards to the floating liquid-glass header. */
 .brand-card {
   position: relative;
