@@ -580,7 +580,7 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${activePage === 'partner' ? ' partner-active' : ''}`}>
       <Header query={query} setQuery={setQuery} onSelectBrand={openBrand} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} />
       {selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'login' ? <CompanyLogin /> : <HomePage onSelectBrand={openBrand} onPartner={() => navigateTo('partner')} />}
     </div>
