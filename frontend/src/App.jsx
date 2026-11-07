@@ -31,14 +31,31 @@ function ArrowIcon({ diagonal = false }) {
   );
 }
 
-function Header({ query, setQuery, products, onSelectProduct, onHome, onNavigate, onCompanyLogin, isSignedIn }) {
+function Header({ query, setQuery, products, brands, onSelectProduct, onSelectBrand, onHome, onNavigate, onCompanyLogin, isSignedIn }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInput = useRef(null);
   const results = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return products.slice(0, 3);
-    return products.filter((product) => `${product.name} ${product.description || ''} ${product.slug}`.toLowerCase().includes(normalized));
-  }, [products, query]);
+    const profiles = [
+      ...brands.map((brand) => ({ type: 'brand', item: brand, name: brand.name,
+        detail: `${brand.brand_category || 'Brand profile'} · ${brand.brand_tagline || 'Company profile'}`,
+        searchable: `${brand.name} ${brand.brand_category || ''} ${brand.brand_tagline || ''} ${brand.summary || ''}` })),
+      ...products.map((product) => ({ type: 'product', item: product, name: product.name,
+        detail: `${product.description || 'Transparency profile'} · /${product.slug}`,
+        searchable: `${product.name} ${product.description || ''} ${product.slug}` })),
+    ];
+    const matches = normalized
+      ? profiles.filter((profile) => profile.searchable.toLowerCase().includes(normalized))
+      : profiles;
+    return matches.slice(0, 5);
+  }, [brands, products, query]);
+
+  function selectResult(result) {
+    setSearchOpen(false);
+    setQuery('');
+    if (result.type === 'brand') onSelectBrand(result.item);
+    else onSelectProduct(result.item);
+  }
 
   useEffect(() => {
     function handleShortcut(event) {
@@ -69,20 +86,23 @@ function Header({ query, setQuery, products, onSelectProduct, onHome, onNavigate
             onFocus={() => setSearchOpen(true)}
             onBlur={() => window.setTimeout(() => setSearchOpen(false), 150)}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' && results[0]) onSelectProduct(results[0]);
+              if (event.key === 'Enter' && results[0]) {
+                event.preventDefault();
+                selectResult(results[0]);
+              }
               if (event.key === 'Escape') setSearchOpen(false);
             }}
           />
           {searchOpen && (
             <div className="search-results">
-              <p className="search-label">{query ? 'PUBLISHED PRODUCTS' : 'RECENTLY PUBLISHED'}</p>
-              {results.length ? results.map((product) => (
-                <button key={product.id} type="button" className="search-result" onMouseDown={() => onSelectProduct(product)}>
-                  <span className="mini-brand mint">{product.name.slice(0, 2).toUpperCase()}</span>
-                  <span><strong>{product.name}</strong><small>{product.description || 'Transparency profile'} · /{product.slug}</small></span>
+              <p className="search-label">{query ? 'PUBLISHED PROFILES' : 'RECENTLY PUBLISHED'}</p>
+              {results.length ? results.map((result) => (
+                <button key={`${result.type}-${result.item.id}`} type="button" className="search-result" onMouseDown={(event) => event.preventDefault()} onClick={() => selectResult(result)}>
+                  <span className={`mini-brand ${result.type === 'brand' ? 'blue' : 'mint'}`}>{result.name.slice(0, 2).toUpperCase()}</span>
+                  <span><strong>{result.name}</strong><small>{result.detail}</small></span>
                   <ArrowIcon diagonal />
                 </button>
-              )) : <p className="no-results">No published products match that search.</p>}
+              )) : <p className="no-results">No published brands or products match that search.</p>}
             </div>
           )}
         </div>
@@ -227,10 +247,10 @@ function BrandCard({ brand, onSelectBrand }) {
         <span className="brand-card-title"><span className="brand-category">{brand.category}</span><strong className="brand-name">{brand.name}</strong></span>
         <span className="brand-claim">“{brand.claim}”</span>
         <span className="brand-card-bottom">
-          <span className="brand-card-score" aria-label={brand.score ? `Trust score ${brand.score} out of 100` : 'Trust score pending'}>
+          <span className="brand-card-score" aria-label={brand.assessment ? `${brand.assessment.claim_count} claims assessed` : 'Assessment pending'}>
             <span className="status-dot" />
-            <strong>{brand.score ?? '—'}</strong>
-            <span className="brand-score-label">{brand.score ? 'Trust score' : brand.pending ? 'Assessment pending' : 'Score pending'}</span>
+            <strong>{brand.assessment?.claim_count ?? '—'}</strong>
+            <span className="brand-score-label">{brand.assessment ? 'claims assessed' : brand.pending ? 'Assessment pending' : 'Score pending'}</span>
           </span>
           <span className="brand-profile-link">Open brand profile <ArrowIcon diagonal /></span>
         </span>
@@ -245,7 +265,6 @@ function HomePage({ products, brands, productsLoading, onSelectProduct, onSelect
         <section className="hero-section">
         <div className="hero-intro">
             <h1>VERITY</h1>
-            <p className="hero-description">Turn Sustainability Claims Into Verified Sales</p>
           </div>
           <BranchArtwork />
       </section>
@@ -556,11 +575,19 @@ function PartnerPlansPage() {
 }
 
 function BrandProfile({ brand, onBack }) {
+  const assessment = brand.assessment;
+  const hasAssessment = Boolean(assessment?.claim_count);
+  const coverage = assessment?.total_products
+    ? Math.round((assessment.products_assessed / assessment.total_products) * 100)
+    : 0;
+  const updatedDate = assessment?.updated_at
+    ? new Date(assessment.updated_at).toLocaleDateString()
+    : null;
   return (
     <main className="profile-page">
       <div className="profile-top section-wrap">
         <button type="button" className="back-link" onClick={onBack}><span>←</span> Back to Verity</button>
-        <span className="profile-generated"><span className="status-dot" /> COMPANY PROVIDED PROFILE</span>
+        <span className="profile-generated"><span className="status-dot" />{hasAssessment ? 'LATEST PORTFOLIO ASSESSMENT' : 'COMPANY PROVIDED PROFILE'}</span>
       </div>
       <section className="profile-hero section-wrap">
         <BrandLogo brand={brand} className="brand-logo-profile" />
@@ -572,22 +599,32 @@ function BrandProfile({ brand, onBack }) {
       </section>
       <div className="profile-content section-wrap">
         <section className="profile-summary panel">
-          <div className="panel-heading"><div><p className="eyebrow">AI-GENERATED SUMMARY</p><h2>What the evidence says</h2></div><span className="summary-spark">✳</span></div>
+          <div className="panel-heading"><div><p className="eyebrow">{hasAssessment ? 'LATEST PORTFOLIO REVIEW' : 'COMPANY PROFILE'}</p><h2>{hasAssessment ? 'What the evidence says' : 'Brand overview'}</h2></div><span className="summary-spark">✳</span></div>
           <p className="summary-text">{brand.summary}</p>
-          <div className="claim-box"><span className="claim-icon">“</span><div><small>BRAND TAGLINE</small><strong>{brand.claim}</strong>{brand.source && <small className="claim-source">Evidence source · {brand.source}</small>}</div><span className="claim-status"><span className="status-dot" />{brand.status || 'Supported'}</span></div>
-          <p className="summary-disclaimer">This brand profile is provided by the company. It is not an independent sustainability assessment or certification.</p>
+          {brand.claim && <div className="claim-box"><span className="claim-icon">“</span><div><small>BRAND TAGLINE</small><strong>{brand.claim}</strong></div></div>}
+          <p className="summary-disclaimer">{hasAssessment ? 'Results reflect company-provided reports and product documents. They are not independent certifications.' : 'This brand profile is provided by the company. It is not an independent sustainability assessment or certification.'}</p>
         </section>
         <aside className="profile-score panel">
-          <p className="eyebrow">VERITY TRUST SCORE</p>
-          <div className="score-dial" style={{ '--score': `${brand.score || 0}%` }}><div><strong>{brand.score ?? '—'}</strong><small> / 100</small></div></div>
-          <p className="score-copy">{brand.scoreCopy || 'Strong evidence coverage'}</p>
-          <span className="score-timestamp"><span className="status-dot" /> Updated recently</span>
+          <p className="eyebrow">PRODUCT COVERAGE</p>
+          <div className="score-dial" style={{ '--score': `${coverage}%` }}><div><strong>{assessment?.products_assessed ?? '—'}</strong><small> / {assessment?.total_products ?? '—'}</small></div></div>
+          <p className="score-copy">{hasAssessment ? `${assessment.claim_count} claims assessed` : 'No assessment yet'}</p>
+          {hasAssessment && <div className="profile-assessment-statuses">{Object.entries(assessment.status_counts).filter(([, count]) => count > 0).map(([status, count]) => <span className={`assessment-status status-${status}`} key={status}>{status.replaceAll('_', ' ')} · {count}</span>)}</div>}
+          <span className="score-timestamp"><span className="status-dot" />{updatedDate ? `Assessed ${updatedDate}` : 'Waiting for assessment'}</span>
         </aside>
         <section className="evidence-section" id="evidence">
-          <div className="evidence-heading"><div><p className="eyebrow">FOLLOW THE PROOF</p><h2>Evidence chain</h2></div><span>{brand.evidence.length} SOURCES REVIEWED</span></div>
-          <div className="evidence-list">{!brand.evidence.length && <p className="summary-text">No evidence has been reviewed for this brand yet.</p>}{brand.evidence.map(([title, detail], index) => <article className="evidence-row" key={title}><span className="evidence-index">0{index + 1}</span><span className="evidence-check">✓</span><div><h3>{title}</h3><p>{detail}</p></div><span className="evidence-valid">{brand.evidenceLabel || 'Verified'}</span></article>)}</div>
+          <div className="evidence-heading"><div><p className="eyebrow">FOLLOW THE PROOF</p><h2>Assessment by product</h2></div><span>{hasAssessment ? `${assessment.claim_count} CLAIMS · ${assessment.products_assessed}/${assessment.total_products} PRODUCTS` : 'NO ASSESSMENT YET'}</span></div>
+          {hasAssessment ? <div className="profile-portfolio-results">{assessment.products.map((product) => <article className="portfolio-product-result" key={product.id}>
+            <div className="portfolio-product-heading"><h3>{product.name}</h3><span className="portfolio-product-meta">{product.claims.length} {product.claims.length === 1 ? 'claim assessed' : 'claims assessed'}</span></div>
+            <div className="assessment-results">{product.claims.map((claim) => <article className="assessment-result" key={`${product.id}-${claim.id}`}>
+              <div className="assessment-result-title"><h3>{claim.text}</h3><span className={`assessment-status status-${claim.status}`}>{claim.status.replaceAll('_', ' ')}</span></div>
+              <p>{claim.explanation}</p>
+              {claim.evidence.length > 0 && <ul>{claim.evidence.map((item, index) => <li key={`${claim.id}-${index}`}>{item.filename ? <><strong>{item.filename}</strong> · </> : null}p. {item.page}: “{item.quote}”</li>)}</ul>}
+              {claim.evidence_limits && <small>Evidence limits: {claim.evidence_limits}</small>}
+              {claim.suggested_rewrite && <p><strong>Suggested wording:</strong> {claim.suggested_rewrite}</p>}
+            </article>)}</div>
+          </article>)}</div> : <p className="summary-text profile-assessment-empty">Run a portfolio assessment from the company dashboard to show assessed claims and supporting evidence here.</p>}
         </section>
-        <div className="profile-note"><span>✳</span><p><strong>How to read this profile</strong><br />Verity’s score reflects the availability, quality, and freshness of evidence. It isn’t a judgment of a brand’s overall impact.</p></div>
+        <div className="profile-note"><span>✳</span><p><strong>How to read this profile</strong><br />Results show how each claim compares with the available company-provided evidence. They are not a judgment of the brand’s overall impact.</p></div>
       </div>
       <footer className="profile-footer section-wrap"><span>verity<span className="wordmark-period">.</span></span><span>Evidence for a more informed choice.</span><button type="button" onClick={onBack}>Explore more brands <ArrowIcon /></button></footer>
     </main>
@@ -704,7 +741,7 @@ export default function App() {
 
   return (
     <div className={`app-shell${activePage === 'partner' ? ' partner-active' : ''}`}>
-      <Header query={query} setQuery={setQuery} products={products} onSelectProduct={openProduct} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} isSignedIn={Boolean(session)} />
+      <Header query={query} setQuery={setQuery} products={products} brands={brands} onSelectProduct={openProduct} onSelectBrand={openBrand} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} isSignedIn={Boolean(session)} />
       {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'signup' ? <CompanySignup onBackToLogin={returnToCompanyLogin} onSignedUp={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'login' ? <CompanyLogin onSignUp={openCompanySignup} onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} brands={brands} productsLoading={productsLoading} onSelectProduct={openProduct} onSelectBrand={openBrand} onPartner={() => navigateTo('partner')} />}
     </div>
   );

@@ -1317,6 +1317,27 @@ body { font-size: 18px; line-height: 1.55; }
   .brand-card-title .brand-name { font-size: 19px; }
   .brand-logo-profile { width: 68px; height: 68px; }
 }
+
+/* Center available profile cards instead of leaving a short row at the left. */
+.brand-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 380px)); justify-content: center; }
+
+/* Keep the profile count on the same center line as the section heading. */
+.brands-section .section-heading-aside {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.brands-section .section-heading-aside p { margin-inline: auto; text-align: center; }
+.brands-section .heading-count { align-self: center; justify-items: center; margin-inline: auto; text-align: center; }
+.profile-assessment-statuses { display: grid; justify-items: center; gap: 7px; width: 100%; margin: 8px 0; }
+.profile-assessment-statuses .assessment-status { white-space: nowrap; }
+.profile-portfolio-results { display: grid; gap: 16px; }
+.profile-portfolio-results .portfolio-product-result { padding: 16px; border: 1px solid rgba(198, 232, 210, .13); border-radius: 5px; background: rgba(13, 30, 25, .42); }
+.profile-portfolio-results .assessment-result { border-top-color: rgba(198, 232, 210, .13); }
+.profile-assessment-empty { padding: 18px; border: 1px solid rgba(198, 232, 210, .13); border-radius: 5px; }
 .hero-intro h1 { font-size: clamp(76px, 15vw, 220px); }
 @media (max-width: 760px) {
   .hero-intro h1 { font-size: clamp(64px, 14vw, 120px); }
@@ -2298,12 +2319,8 @@ body { font-size: 18px; line-height: 1.55; }
 .header-search:focus-within,
 .header-search.is-open { border-color: transparent; outline: none; box-shadow: none; }
 .header-search input:focus { outline: none; box-shadow: none; }
-<<<<<<< Updated upstream
-.hero-intro h1 { font-size: clamp(58px, 10vw, 180px); }
-=======
-.hero-intro h1 { font-size: clamp(68px, 12.8vw, 228px); letter-spacing: .015em; }
-.hero-intro { position: absolute; top: 43%; left: 50%; width: max-content; max-width: 90%; transform: translate(-50%, calc(-50% - 50px + var(--text-scroll-drift, 0px))); text-align: center; }
->>>>>>> Stashed changes
+.hero-intro h1 { font-size: clamp(93px, calc(9vw + 35px), 195px); letter-spacing: .015em; }
+.hero-intro { position: absolute; top: 43%; left: 50%; width: max-content; max-width: 90%; transform: translate(-50%, calc(-50% - 70px + var(--text-scroll-drift, 0px))); text-align: center; }
 .hero-intro h1 em,
 .section-heading h2 em,
 .how-heading h2 em,
@@ -2383,14 +2400,9 @@ body { font-size: 18px; line-height: 1.55; }
 .branch-image { z-index: 2; left: 50%; bottom: -28svh; width: 100vw; height: auto; object-fit: contain; object-position: center bottom; transform: translateX(-50%); }
 @media (min-aspect-ratio: 1.9/1) { .branch-image { bottom: -48svh; } }
 @media (max-width: 760px) {
-<<<<<<< Updated upstream
+  .hero-intro { top: 43%; left: 50%; transform: translate(-50%, calc(-50% - 70px + var(--text-scroll-drift, 0px))); }
   .hero-section { height: clamp(640px, 92svh, 820px); }
-  .hero-intro h1 { font-size: clamp(58px, 10vw, 76px); }
-=======
-  .hero-intro { top: 43%; left: 50%; transform: translate(-50%, calc(-50% - 50px + var(--text-scroll-drift, 0px))); }
-  .hero-section { height: clamp(640px, 92svh, 820px); }
-  .hero-intro h1 { font-size: clamp(65px, 13.5vw, 100px); }
->>>>>>> Stashed changes
+  .hero-intro h1 { font-size: clamp(100px, calc(13.5vw + 35px), 135px); }
   .branch-image { left: 50%; bottom: -16svh; width: 140vw; }
   .about-section { gap: 42px; padding-top: 82px; padding-bottom: 82px; }
   .about-copy { row-gap: 15px; }

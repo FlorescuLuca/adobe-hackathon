@@ -367,12 +367,88 @@ def list_public_products(client: Client = Depends(get_supabase)):
 def list_public_brands(client: Client = Depends(get_supabase)):
     rows = (client.table("companies").select("id,name,brand_category,brand_tagline")
             .eq("brand_published", True).order("created_at", desc=True).limit(100).execute().data)
-    return [{**row, "short": "BR", "tone": "mint", "plain": True,
-             "claim": row["brand_tagline"], "pending": True,
-             "valid": "Company profile · Assessment pending",
-             "status": "Pending", "scoreCopy": "No assessment yet",
-             "summary": f"{row['name']} describes its brand as: {row['brand_tagline']}. Company-wide sustainability evidence and product claims can be reviewed in the VERITY dashboard.",
-             "evidence": []} for row in rows]
+    company_ids = [row["id"] for row in rows]
+    products = (client.table("products").select("id,company_id,name")
+                .in_("company_id", company_ids).execute().data) if company_ids else []
+    products_by_company = {}
+    product_by_id = {}
+    for product in products:
+        products_by_company.setdefault(product["company_id"], []).append(product)
+        product_by_id[product["id"]] = product
+
+    product_ids = list(product_by_id)
+    latest_runs = {}
+    if product_ids:
+        runs = (client.table("assessment_runs").select("id,product_id,created_at,result_json")
+                .in_("product_id", product_ids).order("created_at", desc=True).execute().data)
+        for run in runs:
+            latest_runs.setdefault(run["product_id"], run)
+
+    document_rows = (client.table("documents").select("id,company_id,filename")
+                     .in_("company_id", company_ids).execute().data) if company_ids else []
+    filenames = {document["id"]: document["filename"] for document in document_rows}
+    status_names = ("supported", "partially_supported", "unsubstantiated", "contradicted", "needs_review")
+    brands = []
+    for row in rows:
+        assessed_products = []
+        all_claims = []
+        status_counts = {status: 0 for status in status_names}
+        updated_at = None
+        company_products = products_by_company.get(row["id"], [])
+        for product in company_products:
+            run = latest_runs.get(product["id"])
+            if not run:
+                continue
+            updated_at = max(updated_at or run["created_at"], run["created_at"])
+            result = run.get("result_json") or {}
+            facts_by_id = {fact.get("id"): fact for fact in result.get("facts", [])}
+            product_claims = []
+            for claim in result.get("claims", []):
+                evidence = []
+                for item in claim.get("evidence", []):
+                    fact = facts_by_id.get(item.get("fact_id"), {})
+                    evidence.append({
+                        "page": item.get("page"),
+                        "quote": item.get("quote"),
+                        "filename": filenames.get(fact.get("document_id")),
+                    })
+                claim_result = {
+                    "id": claim.get("id"), "text": claim.get("text"),
+                    "status": claim.get("status"), "explanation": claim.get("explanation"),
+                    "evidence": evidence, "evidence_limits": claim.get("evidence_limits"),
+                    "suggested_rewrite": claim.get("suggested_rewrite"),
+                }
+                product_claims.append(claim_result)
+                all_claims.append(claim_result)
+                if claim_result["status"] in status_counts:
+                    status_counts[claim_result["status"]] += 1
+            assessed_products.append({"id": product["id"], "name": product["name"], "claims": product_claims})
+
+        assessment = None
+        if all_claims:
+            assessment = {
+                "products": assessed_products,
+                "products_assessed": len(assessed_products),
+                "total_products": len(company_products),
+                "claim_count": len(all_claims),
+                "status_counts": status_counts,
+                "updated_at": updated_at,
+            }
+            summary = (f"The latest portfolio assessment reviewed {len(all_claims)} claims across "
+                       f"{len(assessed_products)} of {len(company_products)} products.")
+        else:
+            summary = (f"{row['name']} describes its brand as: {row['brand_tagline']}. "
+                       "Portfolio assessment results will appear here after the company runs an assessment.")
+        brands.append({**row, "short": "BR", "tone": "mint", "plain": True,
+                       "claim": row["brand_tagline"], "assessment": assessment,
+                       "pending": assessment is None,
+                       "valid": (f"Portfolio assessment · {len(all_claims)} claims" if assessment
+                                 else "Company profile · Assessment pending"),
+                       "status": "Results available" if assessment else "Pending",
+                       "scoreCopy": (f"{len(assessed_products)} of {len(company_products)} products assessed"
+                                     if assessment else "No assessment yet"),
+                       "summary": summary, "evidence": []})
+    return brands
 
 
 @app.get(api + "/public/products/{slug}")
