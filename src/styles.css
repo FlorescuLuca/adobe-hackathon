@@ -1211,10 +1211,245 @@ body { font-size: 18px; line-height: 1.55; }
   .panel-heading h2, .evidence-heading h2 { font-size: 23px; }
   .evidence-row h3 { font-size: 15px; }
 }
+
+/* Featured brand carousel cards */
+.section-heading { grid-template-columns: 1fr; justify-items: center; gap: 14px; text-align: center; }
+.section-title { display: grid; justify-items: center; width: 100%; }
+.section-heading-aside { display: grid; justify-items: center; width: min(100%, 660px); gap: 12px; padding: 0; text-align: center; }
+.section-heading-aside p { max-width: 620px; margin: 0 auto; }
+.heading-count { justify-items: center; text-align: center; }
+.brand-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+.brand-card { display: flex; min-width: 0; width: 100%; flex-direction: column; padding: 0; overflow: hidden; border-radius: 7px; text-align: left; background: #303943; }
+.brand-card-visual { position: relative; display: block; height: 220px; overflow: hidden; background: #374a4a; isolation: isolate; }
+.brand-card-visual > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 45%; filter: saturate(.76) brightness(.73); transition: transform .45s ease; }
+.brand-card:hover .brand-card-visual > img { transform: scale(1.06); }
+.brand-card-visual.mint { background: #395545; }
+.brand-card-visual.blue { background: #405766; }
+.brand-card-visual.violet { background: #514960; }
+.brand-card-visual.amber { background: #66583e; }
+.brand-card-visual.blue > img { object-position: 30% 48%; filter: saturate(.68) hue-rotate(8deg) brightness(.67); }
+.brand-card-visual.violet > img { object-position: 68% 43%; filter: saturate(.65) hue-rotate(28deg) brightness(.65); }
+.brand-card-visual.amber > img { object-position: 48% 55%; filter: saturate(.75) sepia(.18) brightness(.69); }
+.brand-visual-wash { position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, rgba(14, 22, 28, .12), rgba(14, 22, 28, .06) 34%, rgba(14, 22, 28, .8) 100%); }
+.brand-card-visual .score-badge { position: absolute; z-index: 2; top: 13px; right: 13px; padding: 7px 9px; border-color: rgba(255, 255, 255, .4); color: #fff; background: rgba(18, 27, 33, .48); backdrop-filter: blur(10px); font-size: 12px; }
+.brand-card-visual .status-dot { background: #d8e7a7; box-shadow: none; }
+.brand-card-lockup { position: absolute; z-index: 2; right: 15px; bottom: 16px; left: 15px; display: flex; align-items: center; gap: 12px; color: #fff; }
+.brand-logo { display: grid; width: 52px; height: 52px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255, 255, 255, .58); border-radius: 50%; color: #fff; background: rgba(255, 255, 255, .14); backdrop-filter: blur(8px); }
+.brand-logo svg { width: 31px; height: 31px; }
+.brand-card-title { display: grid; min-width: 0; gap: 3px; }
+.brand-card-title .brand-category { margin: 0; color: rgba(255,255,255,.82); font-size: 12px; }
+.brand-card-title .brand-name { overflow: hidden; color: #fff; font-size: 21px; text-overflow: ellipsis; white-space: nowrap; }
+.brand-card-copy { display: flex; min-height: 142px; flex: 1; flex-direction: column; padding: 17px 18px 14px; }
+.brand-card-copy .brand-claim { min-height: 0; margin: 0; color: #e2e8ec; font-size: 16px; line-height: 1.5; text-align: left; }
+.brand-card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 13px; border-top: 1px solid rgba(226, 235, 241, .17); color: #d1dce4; font-size: 14px; }
+.brand-card-bottom svg { width: 16px; height: 16px; }
+.brand-card:focus-visible { outline: 3px solid #253746; outline-offset: 4px; }
+.brand-logo-profile { width: 76px; height: 76px; margin-bottom: 20px; border-color: rgba(120, 145, 161, .4); color: #526674; background: rgba(255, 255, 255, .35); }
+.brand-logo-profile svg { width: 45px; height: 45px; }
+
+@media (max-width: 1050px) {
+  .brand-grid { display: flex; gap: 16px; overflow-x: auto; padding: 3px 2px 15px; scroll-snap-type: x mandatory; scrollbar-color: rgba(176, 191, 202, .48) transparent; scrollbar-width: thin; }
+  .brand-card { flex: 0 0 min(330px, 42vw); scroll-snap-align: start; }
+}
+@media (max-width: 760px) {
+  .section-heading { align-items: center; }
+  .section-heading-aside { width: min(100%, 560px); }
+  .brand-card { flex-basis: min(320px, 72vw); }
+}
+@media (max-width: 520px) {
+  .brand-card { flex-basis: 82vw; }
+  .brand-card-visual { height: 210px; }
+  .brand-card-copy { min-height: 135px; padding: 16px; }
+  .brand-card-title .brand-name { font-size: 19px; }
+  .brand-logo-profile { width: 68px; height: 68px; }
+}
 .hero-intro h1 { font-size: clamp(76px, 15vw, 220px); }
 @media (max-width: 760px) {
   .hero-intro h1 { font-size: clamp(64px, 14vw, 120px); }
 }
 @media (max-width: 480px) {
   .hero-intro h1 { font-size: clamp(55px, 15vw, 78px); }
+}
+
+/* Match the brand cards to the floating liquid-glass header. */
+.brand-card {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, .76);
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(245, 248, 250, .82), rgba(224, 232, 238, .72));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .94), 0 12px 32px rgba(25, 38, 48, .15);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  text-align: center;
+  transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.brand-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, .96);
+  background: linear-gradient(135deg, rgba(250, 252, 253, .9), rgba(230, 237, 242, .8));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .98), 0 18px 38px rgba(25, 38, 48, .2);
+}
+.brand-card > * { position: relative; z-index: 1; }
+.brand-card-visual,
+.brand-card-visual.mint,
+.brand-card-visual.blue,
+.brand-card-visual.violet,
+.brand-card-visual.amber {
+  position: relative;
+  display: grid;
+  height: 210px;
+  place-items: center;
+  overflow: hidden;
+  background: transparent;
+  isolation: auto;
+}
+.brand-card-visual::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(35, 48, 47, .04)), url("/verity-products-grid.png");
+  background-repeat: no-repeat;
+  background-position: center, var(--product-position);
+  background-size: 100% 100%, 200% 200%;
+  transition: transform .45s ease;
+}
+.brand-card:hover .brand-card-visual::before { transform: scale(1.045); }
+.brand-card-visual > img,
+.brand-visual-wash,
+.brand-card-lockup { display: none; }
+.brand-card-visual .brand-logo {
+  display: grid;
+  width: 118px;
+  height: 118px;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  color: #496c55;
+  background: transparent;
+  backdrop-filter: none;
+  transition: transform .25s ease;
+}
+.brand-card-visual.blue .brand-logo { color: #416b75; }
+.brand-card-visual.violet .brand-logo { color: #526c59; }
+.brand-card-visual.amber .brand-logo { color: #657348; }
+.brand-card:hover .brand-card-visual .brand-logo { transform: scale(1.07); }
+.brand-card-visual .brand-logo svg { width: 94px; height: 94px; }
+.brand-card-copy {
+  min-height: 166px;
+  align-items: center;
+  padding: 8px 22px 19px;
+  background: transparent;
+}
+.brand-card-title { justify-items: center; gap: 5px; }
+.brand-card-title .brand-category { color: #657681; }
+.brand-card-title .brand-name { max-width: 100%; color: #303b45; }
+.brand-card-copy .brand-claim {
+  max-width: 34ch;
+  margin-top: 10px;
+  color: #4d5e68;
+  text-align: center;
+}
+.brand-card-bottom {
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  border-color: rgba(77, 96, 109, .2);
+  color: #456a58;
+}
+.brand-card-score {
+  display: inline-flex;
+  min-height: 45px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px;
+  border: 1px solid rgba(91, 130, 101, .4);
+  border-radius: 14px;
+  color: #264c38;
+  background: linear-gradient(135deg, rgba(242, 250, 234, .96), rgba(218, 238, 207, .9));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .96), 0 4px 13px rgba(41, 68, 53, .13);
+}
+.brand-card-score .status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  background: #238655;
+  box-shadow: 0 0 0 3px rgba(35, 134, 85, .12), 0 0 8px rgba(35, 134, 85, .45);
+}
+.brand-card-score strong {
+  color: #16492f;
+  font-size: 25px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.brand-score-label {
+  color: #426653;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: left;
+}
+.brand-profile-link {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  color: #3d5967;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.25;
+  text-align: right;
+}
+.brand-profile-link svg { flex: 0 0 auto; }
+
+@media (max-width: 520px) {
+  .brand-card-visual { height: 190px; }
+  .brand-card-copy { min-height: 158px; padding: 8px 16px 16px; }
+  .brand-card-visual .brand-logo { width: 106px; height: 106px; }
+  .brand-card-visual .brand-logo svg { width: 84px; height: 84px; }
+}
+
+/* Translucent teal-blue glass surfaces with readable card text. */
+.brand-card {
+  border-color: rgba(239, 248, 247, .55);
+  background: linear-gradient(135deg, rgba(72, 75, 77, .78), rgba(58, 62, 65, .74));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 8px 24px rgba(18, 34, 39, .2);
+  -webkit-backdrop-filter: blur(30px) saturate(165%);
+  backdrop-filter: blur(30px) saturate(165%);
+}
+.brand-card:hover {
+  border-color: rgba(248, 253, 252, .82);
+  background: linear-gradient(135deg, rgba(80, 83, 85, .82), rgba(67, 70, 72, .79));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .62), 0 14px 30px rgba(18, 34, 39, .24);
+}
+.brand-card-copy { background: transparent; }
+.brand-card-title .brand-name {
+  color: #f4f7f3;
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -.025em;
+  line-height: 1.08;
+}
+.brand-card-title .brand-category { color: #d1e1d9; }
+.brand-card-copy .brand-claim { color: #ecf2ef; }
+.brand-card-score {
+  min-height: 0;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #f1f5f3;
+  background: transparent;
+  box-shadow: none;
+}
+.brand-card-score .status-dot { display: none; }
+.brand-card-score strong { color: #f5f8f6; font-size: 19px; }
+.brand-score-label { color: #dce7e2; font-size: 12px; font-weight: 600; }
+.brand-card-bottom { border-color: rgba(240, 247, 245, .27); color: #eef4f2; }
+.brand-profile-link { color: #eef4f2; }
+
+@media (max-width: 520px) {
+  .brand-card-title .brand-name { font-size: 23px; }
 }

@@ -226,17 +226,47 @@ function VerificationPill({ children }) {
   return <span className="verification-pill"><span className="status-dot" />{children}</span>;
 }
 
+function BrandLogo({ brand, className = '' }) {
+  return (
+    <span className={`brand-logo ${brand.tone} ${className}`} aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none">
+        {brand.short === 'EG' && <g stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M24 39V15m0 13c-7 0-11-3.4-12-10 7 0 11 3.3 12 10Zm0-9c.7-7.6 4.9-11.7 12.5-12.3C35.9 14.3 31.7 18.5 24 19Z"/><path d="M17 39h14"/></g>}
+        {brand.short === 'NS' && <g stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="m24 5 4.6 13.4L42 24l-13.4 4.6L24 42l-4.6-13.4L6 24l13.4-5.6L24 5Z"/><circle cx="24" cy="24" r="3.2" fill="currentColor" stroke="none"/></g>}
+        {brand.short === 'TS' && <g stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="m7 35 11-14 7 8 6-8 10 14H7Z"/><path d="M12 40h24M18 15l4-6 4 6"/></g>}
+        {brand.short === 'KS' && <g stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M8 30c5-5 10-5 15 0s10 5 17 0M8 37c5-5 10-5 15 0s10 5 17 0"/><path d="M25 24c-1-8 3-13 12-15 0 8-4 13-12 15Z"/><path d="M25 24v-8"/></g>}
+      </svg>
+    </span>
+  );
+}
+
+const brandProductPositions = {
+  EG: '0% 0%',
+  NS: '100% 0%',
+  TS: '0% 100%',
+  KS: '100% 100%',
+};
+
 function BrandCard({ brand, onSelectBrand }) {
   return (
-    <button className="brand-card" type="button" onClick={() => onSelectBrand(brand)}>
-      <div className="brand-card-top">
-        <span className={`brand-monogram ${brand.tone}`}>{brand.short}</span>
-        <span className="score-badge"><span className="status-dot" />{brand.score}</span>
-      </div>
-      <span className="brand-category">{brand.category}</span>
-      <strong className="brand-name">{brand.name}</strong>
-      <span className="brand-claim">“{brand.claim}”</span>
-      <span className="brand-card-bottom"><span>View evidence</span><ArrowIcon /></span>
+    <button className="brand-card" type="button" onClick={() => onSelectBrand(brand)} aria-label={`Open ${brand.name} brand profile and evidence`}>
+      <span
+        className={`brand-card-visual ${brand.tone}`}
+        role="img"
+        aria-label={`${brand.name} sample ${brand.category.toLowerCase()} product`}
+        style={{ '--product-position': brandProductPositions[brand.short] || 'center' }}
+      />
+      <span className="brand-card-copy">
+        <span className="brand-card-title"><span className="brand-category">{brand.category}</span><strong className="brand-name">{brand.name}</strong></span>
+        <span className="brand-claim">“{brand.claim}”</span>
+        <span className="brand-card-bottom">
+          <span className="brand-card-score" aria-label={`Trust score ${brand.score} out of 100`}>
+            <span className="status-dot" />
+            <strong>{brand.score}</strong>
+            <span className="brand-score-label">Trust score</span>
+          </span>
+          <span className="brand-profile-link">Open brand profile <ArrowIcon diagonal /></span>
+        </span>
+      </span>
     </button>
   );
 }
@@ -265,7 +295,7 @@ function HomePage({ onSelectBrand }) {
 
       <section className="brands-section section-wrap" id="trusted-brands">
         <div className="section-heading">
-          <div><p className="eyebrow">A MORE OPEN MARKET</p><h2>Good brands.<br /><em>Clear receipts.</em></h2></div>
+          <div className="section-title"><p className="eyebrow">A MORE OPEN MARKET</p><h2>Good brands.<br /><em>Clear receipts.</em></h2></div>
           <div className="section-heading-aside"><p>Explore a growing circle of brands making their sustainability claims easier to trust.</p><span className="heading-count">04 <i>VERIFIED BRANDS</i></span></div>
         </div>
         <div className="brand-grid">{brands.map((brand) => <BrandCard key={brand.name} brand={brand} onSelectBrand={onSelectBrand} />)}</div>
@@ -302,7 +332,7 @@ function BrandProfile({ brand, onBack }) {
         <span className="profile-generated"><span className="status-dot" /> VERITY AI SUMMARY</span>
       </div>
       <section className="profile-hero section-wrap">
-        <span className={`profile-monogram ${brand.tone}`}>{brand.short}</span>
+        <BrandLogo brand={brand} className="brand-logo-profile" />
         <p className="eyebrow">BRAND EVIDENCE PROFILE</p>
         <h1>{brand.name}</h1>
         <p className="profile-category">{brand.category} <span>·</span> Independent evidence overview</p>
