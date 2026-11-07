@@ -8,8 +8,11 @@ Env:      OPENAI_API_KEY (obligatoriu), AI_ENGINE_TOKEN (optional, acelasi ca in
 import json, os, re
 import httpx
 import pymupdf
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
+
+load_dotenv()
 
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 TOKEN = os.environ.get("AI_ENGINE_TOKEN", "")
@@ -139,7 +142,7 @@ def run_assessment(docs_pages: dict[str, list[str]], claims: list[EngineClaim], 
     for i, f in enumerate(facts, 1):
         f["id"] = f"f{i}"
     results, t = assess_claims(claims, facts, ask)
-    total_pages = sum(len(p) for p in docs_pages.values())
+    total_pages = sum(len(pages) for pages in docs_pages.values())
     return {"facts": facts, "claims": results,
             "meta": {"model": MODEL, "tokens": tokens + t, "pages": total_pages}}
 
