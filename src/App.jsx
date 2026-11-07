@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ShaderGradient, ShaderGradientCanvas } from '@shadergradient/react';
 
 const brands = [
   {
@@ -163,39 +164,59 @@ function Header({ query, setQuery, onSelectBrand, onHome, onNavigate }) {
   );
 }
 
-function TreeIllustration() {
+function BranchArtwork() {
+  const [branchSource, setBranchSource] = useState('');
+
+  useEffect(() => {
+    const source = new Image();
+    source.src = '/mossy-branch.jpg';
+    source.onload = () => {
+      const canvas = document.createElement('canvas');
+      const width = source.naturalWidth;
+      const height = source.naturalHeight;
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      context.drawImage(source, 0, 0, width, height);
+      const pixels = context.getImageData(0, 0, width, height);
+      for (let i = 0; i < pixels.data.length; i += 4) {
+        const red = pixels.data[i];
+        const green = pixels.data[i + 1];
+        const blue = pixels.data[i + 2];
+        const lightest = Math.min(red, green, blue);
+        const spread = Math.max(red, green, blue) - lightest;
+        if (lightest > 231 && spread < 20) {
+          pixels.data[i + 3] = Math.round(255 * (1 - Math.min(1, (lightest - 231) / 24)));
+        }
+      }
+      context.putImageData(pixels, 0, 0);
+      setBranchSource(canvas.toDataURL('image/png'));
+    };
+  }, []);
+
   return (
-    <div className="tree-art" aria-label="A glowing tree representing transparent supply chains" role="img">
-      <div className="tree-orbit orbit-one" />
-      <div className="tree-orbit orbit-two" />
-      <div className="tree-orbit orbit-three" />
-      <div className="tree-glow" />
-      <svg viewBox="0 0 520 520" className="tree-svg" fill="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="trunk" x1="260" y1="140" x2="260" y2="480" gradientUnits="userSpaceOnUse"><stop stopColor="#E6EAD2" /><stop offset=".52" stopColor="#A9BC86" /><stop offset="1" stopColor="#607D69" /></linearGradient>
-          <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#DDE8AE" /><stop offset="1" stopColor="#83996D" /></linearGradient>
-          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
-        </defs>
-        <g stroke="url(#trunk)" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" filter="url(#softGlow)">
-          <path d="M260 445V268m0 84-48-47m48 6 52-56m-52 13-80-84m80 43 72-85m-120 119-51-1m151-59 50-5m-102 11 7-88m-39 126-10-56m74 36 34 6" />
-          <path d="M260 447c-32 0-58 7-80 19m80-19c32 0 58 7 80 19" strokeWidth="3" opacity=".65" />
-        </g>
-        <g fill="url(#leaf)" stroke="#BDF4D0" strokeOpacity=".72" strokeWidth="1.2">
-          <ellipse cx="177" cy="166" rx="17" ry="9" transform="rotate(36 177 166)" />
-          <ellipse cx="342" cy="140" rx="18" ry="9" transform="rotate(-44 342 140)" />
-          <ellipse cx="180" cy="278" rx="16" ry="8" transform="rotate(1 180 278)" />
-          <ellipse cx="360" cy="269" rx="17" ry="9" transform="rotate(-4 360 269)" />
-          <ellipse cx="228" cy="217" rx="16" ry="8" transform="rotate(-57 228 217)" />
-          <ellipse cx="301" cy="216" rx="17" ry="9" transform="rotate(51 301 216)" />
-          <ellipse cx="250" cy="133" rx="15" ry="8" transform="rotate(-80 250 133)" />
-          <ellipse cx="315" cy="315" rx="15" ry="8" transform="rotate(24 315 315)" />
-        </g>
-        <g fill="#D9F9E2">
-          <circle cx="177" cy="166" r="2" /><circle cx="342" cy="140" r="2" /><circle cx="180" cy="278" r="2" /><circle cx="360" cy="269" r="2" /><circle cx="228" cy="217" r="2" /><circle cx="301" cy="216" r="2" />
-        </g>
-        <g fill="#D1F7DB" opacity=".9"><circle cx="133" cy="228" r="2.5"/><circle cx="385" cy="194" r="2"/><circle cx="215" cy="93" r="2"/><circle cx="329" cy="363" r="2"/><circle cx="144" cy="337" r="1.5"/><circle cx="375" cy="330" r="2"/></g>
-      </svg>
-      <div className="tree-caption"><span className="caption-line" /><span>Evidence, connected</span><span className="caption-line" /></div>
+    <div className="branch-art" aria-label="Moss and lichen growing on a fallen tree branch" role="img">
+      <div className="shader-field" aria-hidden="true">
+        <ShaderGradientCanvas style={{ position: 'absolute', inset: 0 }} pixelDensity={1} fov={45}>
+          <ShaderGradient
+            type="plane"
+            animate="on"
+            uSpeed={0.16}
+            uStrength={1.35}
+            uDensity={1.1}
+            uFrequency={1.4}
+            color1="#ffffff"
+            color2="#e7eef2"
+            color3="#f5f8fa"
+            brightness={1.1}
+            grain="off"
+            cDistance={3.6}
+            cPolarAngle={90}
+          />
+        </ShaderGradientCanvas>
+      </div>
+      {branchSource && <img className="branch-image" src={branchSource} alt="" />}
+      <div className="branch-label"><span className="status-dot" /> MATERIAL TRACEABILITY · VERIFIED</div>
     </div>
   );
 }
@@ -222,33 +243,17 @@ function BrandCard({ brand, onSelectBrand }) {
 function HomePage({ onSelectBrand }) {
   return (
     <main>
-      <section className="hero-section">
+        <section className="hero-section">
         <div className="hero-intro">
-          <div className="eyebrow"><span className="eyebrow-mark">✳</span> THE NEW STANDARD FOR CONSCIOUS COMMERCE</div>
-          <h1>Trust, rooted<br /><em>in proof.</em></h1>
-          <p className="hero-description">A clearer view of what’s behind the things you buy. Verity turns big sustainability promises into evidence you can actually see.</p>
-          <div className="hero-actions">
-            <button className="button button-primary" type="button" onClick={() => document.getElementById('trusted-brands')?.scrollIntoView({ behavior: 'smooth' })}>Explore verified brands <ArrowIcon /></button>
-            <button className="text-link" type="button" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How Verity works <span className="play-icon">↗</span></button>
+            <div className="eyebrow"><span className="eyebrow-mark">✳</span> THE NEW STANDARD FOR CONSCIOUS COMMERCE</div>
+            <h1>Verity</h1>
+            <p className="hero-description">A clearer view of what’s behind the things you buy. Verity turns big sustainability promises into evidence you can actually see.</p>
+            <div className="hero-actions">
+              <button className="button button-primary" type="button" onClick={() => document.getElementById('trusted-brands')?.scrollIntoView({ behavior: 'smooth' })}>Explore verified brands <ArrowIcon /></button>
+              <button className="text-link" type="button" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How Verity works <span className="play-icon">↗</span></button>
+            </div>
           </div>
-        </div>
-
-        <div className="hero-stage">
-          <div className="stage-kicker"><span>01 / 03</span><span className="stage-rule" />A better kind of transparency</div>
-          <TreeIllustration />
-          <div className="tree-note"><Mark /><span><strong>From claim to source</strong><small>Every branch leads to evidence.</small></span></div>
-        </div>
-
-        <aside className="hero-proof-card">
-          <div className="proof-card-header"><span className="proof-card-label">LIVE VERIFICATION</span><span className="pulse-ring"><i /></span></div>
-          <div className="proof-score"><span>98</span><small>/100</small></div>
-          <p className="proof-score-label">Trust score</p>
-          <div className="proof-divider" />
-          <p className="proof-claim">“Made with 100% recycled cotton”</p>
-          <div className="proof-brand"><span className="mini-brand mint">EG</span><span><strong>Evergreen Goods</strong><small>Verified 2 hours ago</small></span><span className="verified-check">✓</span></div>
-          <button className="proof-open" type="button" onClick={() => onSelectBrand(brands[0])}>See the evidence chain <ArrowIcon /></button>
-        </aside>
-        <div className="hero-side-note"><span className="side-note-dot" /> DATA THAT MOVES WITH THE MOMENT</div>
+          <BranchArtwork />
       </section>
 
       <section className="trust-strip" aria-label="Verity verification features">
