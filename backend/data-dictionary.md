@@ -3,7 +3,7 @@
 Document de contract între motorul AI (Person 3) și backend/baza de date (Person 2).
 Dacă schimbi un câmp, anunți cealaltă persoană și actualizezi acest fișier în același commit.
 
-**Versiune contract:** 1.0
+**Versiune contract:** 1.1 (propunere pentru integrarea backend)
 
 ## Convenții generale
 
@@ -28,6 +28,7 @@ Un fapt extras din documentul încărcat (raport de sustenabilitate etc.).
 | Câmp | Tip | Nullable | Descriere | Exemplu |
 |---|---|---|---|---|
 | `id` | string | nu | Identificator în cadrul răspunsului. | `"f1"` |
+| `document_id` | UUID string | nu | ID-ul documentului încărcat în backend din care provine faptul. | `"550e8400-e29b-41d4-a716-446655440000"` |
 | `text` | string | nu | Faptul, formulat pe scurt. | `"Emisii Scope 1+2 reduse cu 18% față de 2020"` |
 | `value` | număr | da | Valoarea numerică, dacă există. | `18` |
 | `unit` | string | da | Unitatea valorii. | `"%"`, `"tCO2e"` |
@@ -68,8 +69,9 @@ O afirmație din textul de marketing, împreună cu verdictul.
 |---|---|
 | `supported` | Documentul susține afirmația, în domeniul și perioada afirmate. |
 | `partially_supported` | Susținută doar parțial (alt domeniu, altă perioadă, cifră diferită sau calificativ ignorat). |
-| `unsupported` | Documentul contrazice afirmația sau este o afirmație generică fără dovadă. |
-| `cannot_verify` | Nu s-au găsit dovezi relevante în documentul încărcat. **Nu înseamnă că afirmația este falsă.** |
+| `unsubstantiated` | Nu s-au găsit suficiente dovezi în documentele analizate. **Nu înseamnă că afirmația este falsă.** |
+| `contradicted` | Dovezile din document contrazic direct afirmația. |
+| `needs_review` | Rezultatul este ambiguu, documentele sunt incomplete sau este necesară evaluare umană. |
 
 ## Evidence
 
@@ -93,20 +95,21 @@ O dovadă legată de o afirmație.
 
 1. `evidence[].fact_id` trebuie să existe în `facts[].id` din același răspuns.
 2. `status` ∈ {`supported`, `partially_supported`} cere cel puțin o intrare în `evidence`.
-3. `confidence` este între 0 și 1 inclusiv.
-4. `page` este ≥ 1 și ≤ `meta.pages`.
-5. Tipul `generic` este marcat de reguli deterministe din cod, nu doar de LLM.
-6. Orice `quote` trebuie să apară în textul paginii indicate (verificat de motor înainte să trimită răspunsul).
+3. Statusurile canonice sunt `supported`, `partially_supported`, `unsubstantiated`, `contradicted`, `needs_review`. Absența dovezilor nu poate produce `contradicted`.
+4. `confidence` este între 0 și 1 inclusiv.
+5. `page` este ≥ 1 și ≤ `meta.pages`.
+6. Tipul `generic` este marcat de reguli deterministe din cod, nu doar de LLM.
+7. Orice `quote` trebuie să apară în textul paginii indicate (verificat de motor înainte să trimită răspunsul).
 
 ## Exemplu complet (consistent)
 
 ```json
 {
   "facts": [
-    {"id": "f1", "text": "Emisii Scope 1+2 reduse cu 18% față de 2020",
+    {"id": "f1", "document_id": "550e8400-e29b-41d4-a716-446655440000", "text": "Emisii Scope 1+2 reduse cu 18% față de 2020",
      "value": 18, "unit": "%", "scope": "company", "period": "2020-2024",
      "page": 14, "quote": "..."},
-    {"id": "f3", "text": "Sticla de 500 ml este 100% reciclabilă",
+    {"id": "f3", "document_id": "550e8400-e29b-41d4-a716-446655440000", "text": "Sticla de 500 ml este 100% reciclabilă",
      "value": 100, "unit": "%", "scope": "product", "period": "2023",
      "page": 22, "quote": "..."}
   ],
