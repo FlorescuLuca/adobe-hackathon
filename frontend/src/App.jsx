@@ -264,7 +264,7 @@ function HomePage({ products, brands, productsLoading, onSelectProduct, onSelect
     <main>
         <section className="hero-section">
         <div className="hero-intro">
-            <h1>VERITY</h1>
+            <h1>V E R I T Y</h1>
           </div>
           <BranchArtwork />
       </section>
