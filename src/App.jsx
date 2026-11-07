@@ -155,7 +155,7 @@ function Header({ query, setQuery, onSelectBrand, onHome, onNavigate }) {
           )}
         </div>
         <nav className="primary-nav" aria-label="Main navigation">
-          <button type="button" onClick={() => onNavigate('how-it-works')}>How it works</button>
+          <button type="button" onClick={() => onNavigate('trusted-brands')}>Brands</button>
           <button type="button" onClick={() => onNavigate('about')}>About us</button>
           <a href="mailto:hello@verity.eco">Contact</a>
         </nav>
@@ -168,29 +168,12 @@ function BranchArtwork() {
   const branchRef = useRef(null);
 
   useEffect(() => {
-    let currentDrift = 0;
-    let targetDrift = 0;
-    let frame = 0;
-
-    function animateDrift() {
-      currentDrift += (targetDrift - currentDrift) * 0.24;
-      branchRef.current?.style.setProperty('--scroll-drift', `${(-currentDrift).toFixed(1)}px`);
-      if (Math.abs(targetDrift - currentDrift) > 0.25) {
-        frame = window.requestAnimationFrame(animateDrift);
-      } else {
-        currentDrift = targetDrift;
-        branchRef.current?.style.setProperty('--scroll-drift', `${(-currentDrift).toFixed(1)}px`);
-        frame = 0;
-      }
-    }
-
     function updateDrift() {
       const hero = branchRef.current?.closest('.hero-section');
       if (!hero) return;
       const heroTop = hero.getBoundingClientRect().top;
-      const progress = Math.min(1, Math.max(0, -heroTop / (hero.offsetHeight * 0.72)));
-      targetDrift = progress * Math.min(window.innerHeight * 0.27, 210);
-      if (!frame) frame = window.requestAnimationFrame(animateDrift);
+      const drift = Math.max(0, -heroTop) * 0.27;
+      branchRef.current.style.setProperty('--scroll-drift', `${(-drift).toFixed(1)}px`);
     }
 
     window.addEventListener('scroll', updateDrift, { passive: true });
@@ -199,7 +182,6 @@ function BranchArtwork() {
     return () => {
       window.removeEventListener('scroll', updateDrift);
       window.removeEventListener('resize', updateDrift);
-      if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
@@ -259,10 +241,6 @@ function HomePage({ onSelectBrand }) {
         <div className="hero-intro">
             <h1>VERITY</h1>
             <p className="hero-description">Turn Sustainability Claims Into Verified Sales.</p>
-            <div className="hero-actions">
-              <button className="button button-primary" type="button" onClick={() => document.getElementById('trusted-brands')?.scrollIntoView({ behavior: 'smooth' })}>Explore verified brands <ArrowIcon /></button>
-              <button className="text-link" type="button" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How Verity works <span className="play-icon">↗</span></button>
-            </div>
           </div>
           <BranchArtwork />
       </section>
@@ -350,22 +328,22 @@ export default function App() {
 
   function showHome() {
     setSelectedBrand(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
   function navigateTo(id) {
     if (selectedBrand) {
       setSelectedBrand(null);
-      window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 60);
+      window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'auto' }), 60);
     } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
     }
   }
 
   function openBrand(brand) {
     setSelectedBrand(brand);
     setQuery('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
   return (
