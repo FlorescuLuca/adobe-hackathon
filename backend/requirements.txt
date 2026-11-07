@@ -1,6 +1,5 @@
 fastapi
 httpx
-pydantic-settings
-python-multipart
-supabase
+openai
+pymupdf
 uvicorn
