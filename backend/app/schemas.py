@@ -12,6 +12,12 @@ class CompanyCreate(InputModel):
     name: str = Field(min_length=1, max_length=160)
 
 
+class CompanyProfileUpdate(InputModel):
+    brand_category: str | None = Field(default=None, min_length=1, max_length=120)
+    brand_tagline: str | None = Field(default=None, min_length=1, max_length=240)
+    brand_published: bool | None = None
+
+
 class ProductCreate(InputModel):
     name: str = Field(min_length=1, max_length=200)
     description: str | None = Field(default=None, max_length=4000)

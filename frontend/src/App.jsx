@@ -5,138 +5,6 @@ import { apiRequest } from './api.js';
 import BusinessDashboard from './BusinessDashboard.jsx';
 import PublicTransparencyPage from './PublicTransparencyPage.jsx';
 
-const brands = [
-  {
-    name: 'Evergreen Goods',
-    short: 'EG',
-    category: 'Home essentials',
-    score: '98',
-    claim: 'Made with 100% recycled cotton',
-    source: 'Recycled Claim Standard (RCS)',
-    valid: 'Verified 2 hours ago',
-    tone: 'mint',
-    summary:
-      'Evergreen Goods’ cotton collection is made with post-consumer recycled fibers. Supplier invoices and a current RCS scope certificate support the material claim across the collection reviewed by Verity.',
-    evidence: [
-      ['Material traceability', 'Recycled fiber invoices matched to product batches'],
-      ['Supplier certificate', 'RCS scope certificate active through 18 Jun 2027'],
-      ['Independent registry', 'Certificate holder confirmed in the Textile Exchange directory'],
-    ],
-  },
-  {
-    name: 'Northstar Studio',
-    short: 'NS',
-    category: 'Apparel',
-    score: '94',
-    claim: 'Responsibly made in audited facilities',
-    source: 'Fair Wear membership & facility audit',
-    valid: 'Verified yesterday',
-    tone: 'blue',
-    summary:
-      'Northstar Studio publishes factory-level information for its core collection. Verity matched the disclosed production sites with current audit records and reviewed the brand’s latest supplier list.',
-    evidence: [
-      ['Factory disclosure', 'Three production facilities named in the latest supplier list'],
-      ['Social audit', 'Audit records reviewed for all named facilities'],
-      ['Public cross-check', 'Brand membership status confirmed with Fair Wear'],
-    ],
-  },
-  {
-    name: 'TerraStep',
-    short: 'TS',
-    category: 'Footwear',
-    score: '91',
-    claim: 'Leather sourced from certified tanneries',
-    source: 'Leather Working Group (LWG)',
-    valid: 'Verified 5 days ago',
-    tone: 'violet',
-    summary:
-      'TerraStep’s leather sourcing claim is supported by tannery documentation and current facility certifications. Verity checked the certificate holders and validity dates against public records.',
-    evidence: [
-      ['Tannery documents', 'Purchase records mapped to disclosed tannery partners'],
-      ['Facility certification', 'Two tanneries hold current LWG ratings'],
-      ['Validity check', 'Certificate dates confirmed against public facility records'],
-    ],
-  },
-  {
-    name: 'Kindred Supply',
-    short: 'KS',
-    category: 'Personal care',
-    score: '96',
-    claim: 'Packaging is 85% plastic-free',
-    source: 'Packaging composition review',
-    valid: 'Verified 1 week ago',
-    tone: 'amber',
-    summary:
-      'Kindred Supply’s packaging statement is based on a product-weight analysis. Verity reviewed packaging specifications and supplier declarations for the items included in the published claim.',
-    evidence: [
-      ['Packaging breakdown', 'Material weights reconciled across 12 products'],
-      ['Supplier declarations', 'Current composition statements received from vendors'],
-      ['Claim scope', 'Products in the claim are clearly identified on the brand page'],
-    ],
-  },
-];
-
-const featuredBrands = [
-  {
-    name: 'IKEA',
-    short: 'IK',
-    category: 'Home furnishing',
-    score: null,
-    claim: '99.5% of the wood in our products is FSC-certified or recycled',
-    source: 'IKEA Sustainability Report FY21',
-    valid: 'Company report · FY21',
-    tone: 'blue',
-    plain: true,
-    url: 'https://www.ikea.com',
-    status: 'Supported by report',
-    scoreCopy: 'Score available after full assessment',
-    evidenceLabel: 'From report',
-    summary:
-      'IKEA’s FY21 Sustainability Report states that 99.5% of the wood used for IKEA products is FSC-certified or recycled (p. 5). The same report shows that only 14% of total wood used is recycled, so a claim that most IKEA wood is recycled would not be supported. Figures are self-reported and were not cross-checked against the FSC registry.',
-    evidence: [
-      ['Wood sourcing', '99.5% of wood is FSC-certified or recycled (report p. 5)'],
-      ['Recycled share', '14% of total wood used is recycled; goal of one-third by 2030 (report p. 5)'],
-      ['Evidence limits', 'Self-reported by IKEA; certificates not independently cross-checked'],
-    ],
-  },
-  {
-    name: 'Nike',
-    short: 'NK',
-    category: 'Footwear & apparel',
-    score: null,
-    claim: 'Assessment pending',
-    source: 'No documents reviewed yet',
-    valid: 'Not yet assessed',
-    tone: 'violet',
-    plain: true,
-    pending: true,
-    url: 'https://www.nike.com',
-    status: 'Pending',
-    scoreCopy: 'No assessment yet',
-    summary:
-      'Verity has not assessed Nike yet. Once the company’s sustainability report and marketing claims are uploaded and analysed, the evidence and trust score will appear here.',
-    evidence: [],
-  },
-  {
-    name: 'Inditex',
-    short: 'IN',
-    category: 'Fashion retail',
-    score: null,
-    claim: 'Assessment pending',
-    source: 'No documents reviewed yet',
-    valid: 'Not yet assessed',
-    tone: 'mint',
-    plain: true,
-    pending: true,
-    url: 'https://www.inditex.com',
-    status: 'Pending',
-    scoreCopy: 'No assessment yet',
-    summary:
-      'Verity has not assessed Inditex yet. Once the company’s sustainability report and marketing claims are uploaded and analysed, the evidence and trust score will appear here.',
-    evidence: [],
-  },
-];
-
 function Mark({ className = '' }) {
   return (
     <svg className={className} viewBox="0 0 34 34" fill="none" aria-hidden="true">
@@ -163,14 +31,31 @@ function ArrowIcon({ diagonal = false }) {
   );
 }
 
-function Header({ query, setQuery, products, onSelectProduct, onHome, onNavigate, onCompanyLogin, isSignedIn }) {
+function Header({ query, setQuery, products, brands, onSelectProduct, onSelectBrand, onHome, onNavigate, onCompanyLogin, isSignedIn }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInput = useRef(null);
   const results = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return products.slice(0, 3);
-    return products.filter((product) => `${product.name} ${product.description || ''} ${product.slug}`.toLowerCase().includes(normalized));
-  }, [products, query]);
+    const profiles = [
+      ...brands.map((brand) => ({ type: 'brand', item: brand, name: brand.name,
+        detail: `${brand.brand_category || 'Brand profile'} · ${brand.brand_tagline || 'Company profile'}`,
+        searchable: `${brand.name} ${brand.brand_category || ''} ${brand.brand_tagline || ''} ${brand.summary || ''}` })),
+      ...products.map((product) => ({ type: 'product', item: product, name: product.name,
+        detail: `${product.description || 'Transparency profile'} · /${product.slug}`,
+        searchable: `${product.name} ${product.description || ''} ${product.slug}` })),
+    ];
+    const matches = normalized
+      ? profiles.filter((profile) => profile.searchable.toLowerCase().includes(normalized))
+      : profiles;
+    return matches.slice(0, 5);
+  }, [brands, products, query]);
+
+  function selectResult(result) {
+    setSearchOpen(false);
+    setQuery('');
+    if (result.type === 'brand') onSelectBrand(result.item);
+    else onSelectProduct(result.item);
+  }
 
   useEffect(() => {
     function handleShortcut(event) {
@@ -201,20 +86,23 @@ function Header({ query, setQuery, products, onSelectProduct, onHome, onNavigate
             onFocus={() => setSearchOpen(true)}
             onBlur={() => window.setTimeout(() => setSearchOpen(false), 150)}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' && results[0]) onSelectProduct(results[0]);
+              if (event.key === 'Enter' && results[0]) {
+                event.preventDefault();
+                selectResult(results[0]);
+              }
               if (event.key === 'Escape') setSearchOpen(false);
             }}
           />
           {searchOpen && (
             <div className="search-results">
-              <p className="search-label">{query ? 'PUBLISHED PRODUCTS' : 'RECENTLY PUBLISHED'}</p>
-              {results.length ? results.map((product) => (
-                <button key={product.id} type="button" className="search-result" onMouseDown={() => onSelectProduct(product)}>
-                  <span className="mini-brand mint">{product.name.slice(0, 2).toUpperCase()}</span>
-                  <span><strong>{product.name}</strong><small>{product.description || 'Transparency profile'} · /{product.slug}</small></span>
+              <p className="search-label">{query ? 'PUBLISHED PROFILES' : 'RECENTLY PUBLISHED'}</p>
+              {results.length ? results.map((result) => (
+                <button key={`${result.type}-${result.item.id}`} type="button" className="search-result" onMouseDown={(event) => event.preventDefault()} onClick={() => selectResult(result)}>
+                  <span className={`mini-brand ${result.type === 'brand' ? 'blue' : 'mint'}`}>{result.name.slice(0, 2).toUpperCase()}</span>
+                  <span><strong>{result.name}</strong><small>{result.detail}</small></span>
                   <ArrowIcon diagonal />
                 </button>
-              )) : <p className="no-results">No published products match that search.</p>}
+              )) : <p className="no-results">No published brands or products match that search.</p>}
             </div>
           )}
         </div>
@@ -359,10 +247,10 @@ function BrandCard({ brand, onSelectBrand }) {
         <span className="brand-card-title"><span className="brand-category">{brand.category}</span><strong className="brand-name">{brand.name}</strong></span>
         <span className="brand-claim">“{brand.claim}”</span>
         <span className="brand-card-bottom">
-          <span className="brand-card-score" aria-label={brand.score ? `Trust score ${brand.score} out of 100` : 'Trust score pending'}>
+          <span className="brand-card-score" aria-label={brand.assessment ? `${brand.assessment.claim_count} claims assessed` : 'Assessment pending'}>
             <span className="status-dot" />
-            <strong>{brand.score ?? '—'}</strong>
-            <span className="brand-score-label">{brand.score ? 'Trust score' : brand.pending ? 'Assessment pending' : 'Score pending'}</span>
+            <strong>{brand.assessment?.claim_count ?? '—'}</strong>
+            <span className="brand-score-label">{brand.assessment ? 'claims assessed' : brand.pending ? 'Assessment pending' : 'Score pending'}</span>
           </span>
           <span className="brand-profile-link">Open brand profile <ArrowIcon diagonal /></span>
         </span>
@@ -371,13 +259,12 @@ function BrandCard({ brand, onSelectBrand }) {
   );
 }
 
-function HomePage({ products, productsLoading, onSelectProduct, onSelectBrand, onPartner }) {
+function HomePage({ products, brands, productsLoading, onSelectProduct, onSelectBrand, onPartner }) {
   return (
     <main>
         <section className="hero-section">
         <div className="hero-intro">
             <h1>VERITY</h1>
-            <p className="hero-description">Turn Sustainability Claims Into Verified Sales</p>
           </div>
           <BranchArtwork />
       </section>
@@ -385,9 +272,9 @@ function HomePage({ products, productsLoading, onSelectProduct, onSelectBrand, o
       <section className="brands-section section-wrap" id="trusted-brands">
         <div className="section-heading">
           <div className="section-title"><p className="eyebrow">A MORE OPEN MARKET</p><h2>Good brands.<br /><em>Clear receipts.</em></h2></div>
-            <div className="section-heading-aside"><p>Explore published product profiles and the evidence companies provide for their sustainability claims.</p><span className="heading-count">{String(products.length + featuredBrands.length).padStart(2, '0')} <i>PROFILES</i></span></div>
+            <div className="section-heading-aside"><p>Explore company brand profiles and published product evidence.</p><span className="heading-count">{String(products.length + brands.length).padStart(2, '0')} <i>PROFILES</i></span></div>
         </div>
-        <div className="brand-grid">{featuredBrands.map((brand) => <BrandCard key={brand.name} brand={brand} onSelectBrand={onSelectBrand} />)}{products.map((product, index) => <ProductCard key={product.id} product={product} index={index} onSelectProduct={onSelectProduct} />)}</div>
+        <div className="brand-grid">{brands.map((brand) => <BrandCard key={brand.id} brand={brand} onSelectBrand={onSelectBrand} />)}{products.map((product, index) => <ProductCard key={product.id} product={product} index={index} onSelectProduct={onSelectProduct} />)}</div>
         {!products.length && productsLoading && <p className="no-published-products">Loading published product profiles…</p>}
         <div className="brand-section-footer"><span className="tiny-orbit">✳</span><span>Verity is growing a more transparent way to shop.</span><button type="button" className="partner-footer-link" onClick={onPartner}>Partner with us <ArrowIcon /></button></div>
       </section>
@@ -587,8 +474,8 @@ function CompanySignup({ onSignedUp, onBackToLogin }) {
             <form className="company-login-form" onSubmit={handleSubmit}>
               <label htmlFor="signup-company-name">Company name</label>
               <input id="signup-company-name" name="companyName" type="text" autoComplete="organization" placeholder="Your company" value={companyName} onChange={(event) => setCompanyName(event.target.value)} required />
-              <label htmlFor="signup-company-email">Work email</label>
-              <input id="signup-company-email" name="email" type="email" autoComplete="email" placeholder="you@company.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
+              <label htmlFor="signup-company-email">Email address (personal or work)</label>
+              <input id="signup-company-email" name="email" type="email" inputMode="email" autoCapitalize="none" autoComplete="email" placeholder="name@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
               <label htmlFor="signup-company-password">Password</label>
               <input id="signup-company-password" name="password" type="password" autoComplete="new-password" minLength={8} placeholder="At least 8 characters" value={password} onChange={(event) => setPassword(event.target.value)} required />
               <label htmlFor="signup-company-confirm-password">Confirm password</label>
@@ -687,38 +574,56 @@ function PartnerPlansPage() {
 }
 
 function BrandProfile({ brand, onBack }) {
+  const assessment = brand.assessment;
+  const hasAssessment = Boolean(assessment?.claim_count);
+  const coverage = assessment?.total_products
+    ? Math.round((assessment.products_assessed / assessment.total_products) * 100)
+    : 0;
+  const updatedDate = assessment?.updated_at
+    ? new Date(assessment.updated_at).toLocaleDateString()
+    : null;
   return (
     <main className="profile-page">
       <div className="profile-top section-wrap">
         <button type="button" className="back-link" onClick={onBack}><span>←</span> Back to Verity</button>
-        <span className="profile-generated"><span className="status-dot" /> VERITY AI SUMMARY</span>
+        <span className="profile-generated"><span className="status-dot" />{hasAssessment ? 'LATEST PORTFOLIO ASSESSMENT' : 'COMPANY PROVIDED PROFILE'}</span>
       </div>
       <section className="profile-hero section-wrap">
         <BrandLogo brand={brand} className="brand-logo-profile" />
         <p className="eyebrow">BRAND EVIDENCE PROFILE</p>
         <h1>{brand.name}</h1>
-        <p className="profile-category">{brand.category} <span>·</span> Independent evidence overview</p>
+        <p className="profile-category">{brand.brand_category || brand.category} <span>·</span> Company profile</p>
         <VerificationPill>{brand.valid}</VerificationPill>
-        <div className="profile-links"><a href="#evidence">View evidence chain <ArrowIcon /></a><a href={brand.url || 'https://example.com'} target="_blank" rel="noreferrer">Visit brand <ArrowIcon diagonal /></a></div>
+        <div className="profile-links"><a href="#evidence">View evidence chain <ArrowIcon /></a>{brand.url && <a href={brand.url} target="_blank" rel="noreferrer">Visit brand <ArrowIcon diagonal /></a>}</div>
       </section>
       <div className="profile-content section-wrap">
         <section className="profile-summary panel">
-          <div className="panel-heading"><div><p className="eyebrow">AI-GENERATED SUMMARY</p><h2>What the evidence says</h2></div><span className="summary-spark">✳</span></div>
+          <div className="panel-heading"><div><p className="eyebrow">{hasAssessment ? 'LATEST PORTFOLIO REVIEW' : 'COMPANY PROFILE'}</p><h2>{hasAssessment ? 'What the evidence says' : 'Brand overview'}</h2></div><span className="summary-spark">✳</span></div>
           <p className="summary-text">{brand.summary}</p>
-          <div className="claim-box"><span className="claim-icon">“</span><div><small>THE BRAND CLAIM</small><strong>{brand.claim}</strong><small className="claim-source">Evidence source · {brand.source}</small></div><span className="claim-status"><span className="status-dot" />{brand.status || 'Supported'}</span></div>
-          <p className="summary-disclaimer">This summary reflects the documents and public records reviewed by Verity at the time shown. It is designed to make the evidence easier to understand.</p>
+          {brand.claim && <div className="claim-box"><span className="claim-icon">“</span><div><small>BRAND TAGLINE</small><strong>{brand.claim}</strong></div></div>}
+          <p className="summary-disclaimer">{hasAssessment ? 'Results reflect company-provided reports and product documents. They are not independent certifications.' : 'This brand profile is provided by the company. It is not an independent sustainability assessment or certification.'}</p>
         </section>
         <aside className="profile-score panel">
-          <p className="eyebrow">VERITY TRUST SCORE</p>
-          <div className="score-dial" style={{ '--score': `${brand.score || 0}%` }}><div><strong>{brand.score ?? '—'}</strong><small> / 100</small></div></div>
-          <p className="score-copy">{brand.scoreCopy || 'Strong evidence coverage'}</p>
-          <span className="score-timestamp"><span className="status-dot" /> Updated recently</span>
+          <p className="eyebrow">PRODUCT COVERAGE</p>
+          <div className="score-dial" style={{ '--score': `${coverage}%` }}><div><strong>{assessment?.products_assessed ?? '—'}</strong><small> / {assessment?.total_products ?? '—'}</small></div></div>
+          <p className="score-copy">{hasAssessment ? `${assessment.claim_count} claims assessed` : 'No assessment yet'}</p>
+          {hasAssessment && <div className="profile-assessment-statuses">{Object.entries(assessment.status_counts).filter(([, count]) => count > 0).map(([status, count]) => <span className={`assessment-status status-${status}`} key={status}>{status.replaceAll('_', ' ')} · {count}</span>)}</div>}
+          <span className="score-timestamp"><span className="status-dot" />{updatedDate ? `Assessed ${updatedDate}` : 'Waiting for assessment'}</span>
         </aside>
         <section className="evidence-section" id="evidence">
-          <div className="evidence-heading"><div><p className="eyebrow">FOLLOW THE PROOF</p><h2>Evidence chain</h2></div><span>{brand.evidence.length} SOURCES REVIEWED</span></div>
-          <div className="evidence-list">{!brand.evidence.length && <p className="summary-text">No evidence has been reviewed for this brand yet.</p>}{brand.evidence.map(([title, detail], index) => <article className="evidence-row" key={title}><span className="evidence-index">0{index + 1}</span><span className="evidence-check">✓</span><div><h3>{title}</h3><p>{detail}</p></div><span className="evidence-valid">{brand.evidenceLabel || 'Verified'}</span></article>)}</div>
+          <div className="evidence-heading"><div><p className="eyebrow">FOLLOW THE PROOF</p><h2>Assessment by product</h2></div><span>{hasAssessment ? `${assessment.claim_count} CLAIMS · ${assessment.products_assessed}/${assessment.total_products} PRODUCTS` : 'NO ASSESSMENT YET'}</span></div>
+          {hasAssessment ? <div className="profile-portfolio-results">{assessment.products.map((product) => <article className="portfolio-product-result" key={product.id}>
+            <div className="portfolio-product-heading"><h3>{product.name}</h3><span className="portfolio-product-meta">{product.claims.length} {product.claims.length === 1 ? 'claim assessed' : 'claims assessed'}</span></div>
+            <div className="assessment-results">{product.claims.map((claim) => <article className="assessment-result" key={`${product.id}-${claim.id}`}>
+              <div className="assessment-result-title"><h3>{claim.text}</h3><span className={`assessment-status status-${claim.status}`}>{claim.status.replaceAll('_', ' ')}</span></div>
+              <p>{claim.explanation}</p>
+              {claim.evidence.length > 0 && <ul>{claim.evidence.map((item, index) => <li key={`${claim.id}-${index}`}>{item.filename ? <><strong>{item.filename}</strong> · </> : null}p. {item.page}: “{item.quote}”</li>)}</ul>}
+              {claim.evidence_limits && <small>Evidence limits: {claim.evidence_limits}</small>}
+              {claim.suggested_rewrite && <p><strong>Suggested wording:</strong> {claim.suggested_rewrite}</p>}
+            </article>)}</div>
+          </article>)}</div> : <p className="summary-text profile-assessment-empty">Run a portfolio assessment from the company dashboard to show assessed claims and supporting evidence here.</p>}
         </section>
-        <div className="profile-note"><span>✳</span><p><strong>How to read this profile</strong><br />Verity’s score reflects the availability, quality, and freshness of evidence. It isn’t a judgment of a brand’s overall impact.</p></div>
+        <div className="profile-note"><span>✳</span><p><strong>How to read this profile</strong><br />Results show how each claim compares with the available company-provided evidence. They are not a judgment of the brand’s overall impact.</p></div>
       </div>
       <footer className="profile-footer section-wrap"><span>verity<span className="wordmark-period">.</span></span><span>Evidence for a more informed choice.</span><button type="button" onClick={onBack}>Explore more brands <ArrowIcon /></button></footer>
     </main>
@@ -732,6 +637,7 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [publicSlug, setPublicSlug] = useState(() => decodeURIComponent(window.location.pathname.match(/^\/p\/([^/]+)/)?.[1] || ''));
   const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
 
   useEffect(() => {
@@ -742,9 +648,13 @@ export default function App() {
     if (activePage !== 'home' || publicSlug) return;
     let cancelled = false;
     setProductsLoading(true);
-    apiRequest('/public/products')
-      .then((publishedProducts) => { if (!cancelled) setProducts(publishedProducts); })
-      .catch(() => { if (!cancelled) setProducts([]); })
+    Promise.all([apiRequest('/public/products'), apiRequest('/public/brands')])
+      .then(([publishedProducts, publishedBrands]) => {
+        if (cancelled) return;
+        setProducts(publishedProducts);
+        setBrands(publishedBrands.map((brand) => ({ ...brand, category: brand.brand_category, evidence: brand.evidence || [] })));
+      })
+      .catch(() => { if (!cancelled) { setProducts([]); setBrands([]); } })
       .finally(() => { if (!cancelled) setProductsLoading(false); });
     return () => { cancelled = true; };
   }, [activePage, publicSlug]);
@@ -830,8 +740,8 @@ export default function App() {
 
   return (
     <div className={`app-shell${activePage === 'partner' ? ' partner-active' : ''}`}>
-      <Header query={query} setQuery={setQuery} products={products} onSelectProduct={openProduct} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} isSignedIn={Boolean(session)} />
-      {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'signup' ? <CompanySignup onBackToLogin={returnToCompanyLogin} onSignedUp={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'login' ? <CompanyLogin onSignUp={openCompanySignup} onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} productsLoading={productsLoading} onSelectProduct={openProduct} onSelectBrand={openBrand} onPartner={() => navigateTo('partner')} />}
+      <Header query={query} setQuery={setQuery} products={products} brands={brands} onSelectProduct={openProduct} onSelectBrand={openBrand} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} isSignedIn={Boolean(session)} />
+      {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'signup' ? <CompanySignup onBackToLogin={returnToCompanyLogin} onSignedUp={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'login' ? <CompanyLogin onSignUp={openCompanySignup} onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} brands={brands} productsLoading={productsLoading} onSelectProduct={openProduct} onSelectBrand={openBrand} onPartner={() => navigateTo('partner')} />}
     </div>
   );
 }

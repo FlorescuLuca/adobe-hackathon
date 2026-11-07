@@ -51,6 +51,9 @@ export default function BusinessDashboard({ session, onSignOut }) {
   const [portfolioHasRun, setPortfolioHasRun] = useState(false);
   const [portfolioProgress, setPortfolioProgress] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [brandCategory, setBrandCategory] = useState('');
+  const [brandTagline, setBrandTagline] = useState('');
+  const [brandPublished, setBrandPublished] = useState(false);
   const [productName, setProductName] = useState('');
   const [productDescription, setProductDescription] = useState('');
   const [claimText, setClaimText] = useState('');
@@ -80,6 +83,9 @@ export default function BusinessDashboard({ session, onSignOut }) {
       .then(async (row) => {
         if (!alive) return;
         setCompany(row);
+        setBrandCategory(row.brand_category || '');
+        setBrandTagline(row.brand_tagline || '');
+        setBrandPublished(Boolean(row.brand_published));
         setNeedsCompany(false);
         const [productRows, reportRows] = await Promise.all([
           apiRequest('/products', { session }),
@@ -137,6 +143,25 @@ export default function BusinessDashboard({ session, onSignOut }) {
       setCompanyName('');
       setProducts([]);
       setCompanyDocuments([]);
+    });
+  }
+
+  function saveBrandProfile(event) {
+    event.preventDefault();
+    return run(async () => {
+      const updated = await apiRequest('/companies/me', {
+        session,
+        method: 'PATCH',
+        body: JSON.stringify({
+          brand_category: brandCategory.trim() || null,
+          brand_tagline: brandTagline.trim() || null,
+          brand_published: brandPublished,
+        }),
+      });
+      setCompany(updated);
+      setBrandCategory(updated.brand_category || '');
+      setBrandTagline(updated.brand_tagline || '');
+      setBrandPublished(Boolean(updated.brand_published));
     });
   }
 
@@ -305,18 +330,6 @@ export default function BusinessDashboard({ session, onSignOut }) {
     });
   }
 
-  function togglePublished() {
-    if (!selectedProduct) return;
-    return run(async () => {
-      const updated = await apiRequest(`/products/${selectedProduct.id}`, {
-        session,
-        method: 'PATCH',
-        body: JSON.stringify({ is_published: !selectedProduct.is_published }),
-      });
-      setProducts((rows) => rows.map((row) => row.id === updated.id ? updated : row));
-    });
-  }
-
   return (
     <main className="dashboard-page section-wrap">
       <div className="dashboard-heading">
@@ -331,13 +344,26 @@ export default function BusinessDashboard({ session, onSignOut }) {
           <div className="dashboard-overview"><span>COMPANY</span><strong>{company.name}</strong><span>{products.length} {products.length === 1 ? 'product' : 'products'}</span></div>
 
           <section className="dashboard-panel company-evidence-panel">
+            <div className="dashboard-section-heading"><div><p className="eyebrow">PUBLIC BRAND PROFILE</p><h2>Your brand</h2></div><span className="company-evidence-count">{brandPublished ? 'PUBLISHED' : 'HIDDEN'}</span></div>
+            <p className="dashboard-panel-copy">Add your company to the public profiles section. Your brand card uses your company name, category, and tagline; publishing a brand profile does not certify its claims.</p>
+            <form className="dashboard-form" onSubmit={saveBrandProfile}>
+              <label htmlFor="brand-category">Brand category</label>
+              <input id="brand-category" value={brandCategory} onChange={(event) => setBrandCategory(event.target.value)} maxLength={120} placeholder="Fashion, home goods, food…" />
+              <label htmlFor="brand-tagline">Short brand tagline</label>
+              <textarea id="brand-tagline" value={brandTagline} onChange={(event) => setBrandTagline(event.target.value)} maxLength={240} rows={2} placeholder="A short description shown on your public card" />
+              <label className="dashboard-brand-publish"><input type="checkbox" checked={brandPublished} onChange={(event) => setBrandPublished(event.target.checked)} /> Show my brand in the public profiles section</label>
+              <button className="dashboard-primary" disabled={busy}>{busy ? 'Saving…' : 'Save brand profile'}</button>
+            </form>
+          </section>
+
+          <section className="dashboard-panel company-evidence-panel">
             <div className="dashboard-section-heading">
               <div><p className="eyebrow">COMPANY-WIDE EVIDENCE</p><h2>Sustainability reports</h2></div>
               <span className="company-evidence-count">{companyDocuments.length} {companyDocuments.length === 1 ? 'report' : 'reports'}</span>
             </div>
             <p className="dashboard-panel-copy">Upload a company report once. VERITY will consider it for claims on every product, while keeping each result tied to that product’s actual coverage.</p>
             <form className="dashboard-form company-upload-form" onSubmit={uploadCompanyDocument}>
-              <label htmlFor="company-report-pdf">Add a company sustainability report (PDF)</label>
+              <label htmlFor="company-report-pdf">Add a company sustainability report (PDF, up to 50 MB)</label>
               <div className="company-upload-row"><input id="company-report-pdf" type="file" accept="application/pdf,.pdf" onChange={(event) => setCompanyFile(event.target.files?.[0] || null)} required /><button className="dashboard-primary" disabled={busy || !companyFile}>{busy ? 'Uploading…' : 'Upload report'}</button></div>
             </form>
             {companyDocuments.length ? <ul className="dashboard-list company-evidence-list">{companyDocuments.map((doc) => <li key={doc.id}><strong>{doc.filename}</strong><span>{documentLabel(doc)}</span><button type="button" className="dashboard-danger" onClick={() => deleteCompanyDocument(doc)} disabled={busy} aria-label={`Remove report ${doc.filename}`}>Remove</button></li>)}</ul> : <p className="dashboard-empty">No company-wide report uploaded yet. Product-specific documents remain available as additional evidence.</p>}
@@ -373,9 +399,9 @@ export default function BusinessDashboard({ session, onSignOut }) {
           </section>
           {selectedProduct ? (
             <section className="dashboard-workspace">
-              <div className="dashboard-panel dashboard-product-header"><div><p className="eyebrow">SELECTED PRODUCT</p><h2>{selectedProduct.name}</h2><code>{selectedProduct.slug}</code></div><div className="dashboard-actions"><button type="button" className="dashboard-secondary" onClick={togglePublished} disabled={busy}>{selectedProduct.is_published ? 'Unpublish' : 'Publish page'}</button>{selectedProduct.is_published && <a className="dashboard-secondary" href={`/p/${selectedProduct.slug}`} target="_blank" rel="noreferrer">View public page ↗</a>}<button type="button" className="dashboard-danger" onClick={deleteProduct} disabled={busy}>Delete product</button></div></div>
+              <div className="dashboard-panel dashboard-product-header"><div><p className="eyebrow">SELECTED PRODUCT</p><h2>{selectedProduct.name}</h2><code>{selectedProduct.slug}</code></div><div className="dashboard-actions"><button type="button" className="dashboard-danger" onClick={deleteProduct} disabled={busy}>Delete product</button></div></div>
               <div className="dashboard-columns">
-                <section className="dashboard-panel"><p className="eyebrow">PRODUCT-SPECIFIC EVIDENCE</p><h2>Product documents</h2><p className="dashboard-panel-copy">Use product documents for evidence that applies only to {selectedProduct.name}. Company reports are included automatically.</p><form className="dashboard-form" onSubmit={uploadProductDocument}><label htmlFor="product-pdf">Upload a PDF</label><input id="product-pdf" type="file" accept="application/pdf,.pdf" onChange={(event) => setFile(event.target.files?.[0] || null)} required /><button className="dashboard-primary" disabled={busy || !file}>{busy ? 'Working…' : 'Upload document'}</button></form><ul className="dashboard-list">{documents.map((doc) => <li key={doc.id}><strong>{doc.filename}</strong><span>{documentLabel(doc)}</span><button type="button" className="dashboard-danger" onClick={() => deleteProductDocument(doc)} disabled={busy} aria-label={`Remove product document ${doc.filename}`}>Remove</button></li>)}</ul>{!documents.length && <p className="dashboard-empty">No product-specific documents uploaded.</p>}</section>
+                <section className="dashboard-panel"><p className="eyebrow">PRODUCT-SPECIFIC EVIDENCE</p><h2>Product documents</h2><p className="dashboard-panel-copy">Use product documents for evidence that applies only to {selectedProduct.name}. Company reports are included automatically.</p><form className="dashboard-form" onSubmit={uploadProductDocument}><label htmlFor="product-pdf">Upload a PDF (up to 50 MB)</label><input id="product-pdf" type="file" accept="application/pdf,.pdf" onChange={(event) => setFile(event.target.files?.[0] || null)} required /><button className="dashboard-primary" disabled={busy || !file}>{busy ? 'Working…' : 'Upload document'}</button></form><ul className="dashboard-list">{documents.map((doc) => <li key={doc.id}><strong>{doc.filename}</strong><span>{documentLabel(doc)}</span><button type="button" className="dashboard-danger" onClick={() => deleteProductDocument(doc)} disabled={busy} aria-label={`Remove product document ${doc.filename}`}>Remove</button></li>)}</ul>{!documents.length && <p className="dashboard-empty">No product-specific documents uploaded.</p>}</section>
                 <section className="dashboard-panel"><p className="eyebrow">MARKETING CLAIMS</p><h2>Claims to assess</h2><form className="dashboard-form" onSubmit={addClaim}><label htmlFor="claim-text">Add a claim for {selectedProduct.name}</label><textarea id="claim-text" value={claimText} onChange={(event) => setClaimText(event.target.value)} maxLength={2000} rows={3} required placeholder="Example: Packaging is 100% recyclable" /><button className="dashboard-primary" disabled={busy}>Add claim</button></form><ul className="dashboard-list">{claims.map((claim) => <li key={claim.id}><strong>{claim.text}</strong><button type="button" className="dashboard-danger" onClick={() => deleteClaim(claim)} disabled={busy} aria-label={`Remove claim ${claim.text}`}>Remove</button></li>)}</ul>{!claims.length && <p className="dashboard-empty">No claims added yet.</p>}</section>
               </div>
               <div className="dashboard-panel dashboard-assessment"><div><p className="eyebrow">SINGLE PRODUCT REVIEW</p><h2>Compare this product’s claims</h2><p>Company-wide reports and this product’s documents are used together. Results are based on company-provided evidence and are not independent certifications.</p></div><button className="dashboard-primary" type="button" onClick={assessProduct} disabled={busy || (!documents.length && !companyDocuments.length) || !claims.length}>{busy ? 'Assessing…' : 'Assess this product'}</button></div>
