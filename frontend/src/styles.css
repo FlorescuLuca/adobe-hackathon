@@ -2270,7 +2270,8 @@ body { font-size: 18px; line-height: 1.55; }
 .header-search:focus-within,
 .header-search.is-open { border-color: transparent; outline: none; box-shadow: none; }
 .header-search input:focus { outline: none; box-shadow: none; }
-.hero-intro h1 { font-size: clamp(58px, 10vw, 180px); }
+.hero-intro h1 { font-size: clamp(68px, 11.5vw, 204px); letter-spacing: .015em; }
+.hero-intro { position: absolute; top: 43%; left: 50%; width: max-content; max-width: 90%; transform: translate(-50%, -50%); text-align: center; }
 .hero-intro h1 em,
 .section-heading h2 em,
 .how-heading h2 em,
@@ -2350,8 +2351,9 @@ body { font-size: 18px; line-height: 1.55; }
 .branch-image { z-index: 2; left: 50%; bottom: -28svh; width: 100vw; height: auto; object-fit: contain; object-position: center bottom; transform: translateX(-50%); }
 @media (min-aspect-ratio: 1.9/1) { .branch-image { bottom: -48svh; } }
 @media (max-width: 760px) {
+  .hero-intro { top: 43%; left: 50%; transform: translate(-50%, -50%); }
   .hero-section { height: clamp(640px, 92svh, 820px); }
-  .hero-intro h1 { font-size: clamp(58px, 10vw, 76px); }
+  .hero-intro h1 { font-size: clamp(65px, 11.5vw, 86px); }
   .branch-image { left: 50%; bottom: -16svh; width: 140vw; }
   .about-section { gap: 42px; padding-top: 82px; padding-bottom: 82px; }
   .about-copy { row-gap: 15px; }

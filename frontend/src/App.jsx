@@ -353,7 +353,6 @@ function HomePage({ products, productsLoading, onSelectProduct, onPartner }) {
           </ul>
           <a href="mailto:hello@verity.eco" className="about-link">Get to know Verity <ArrowIcon /></a>
         </div>
-        <div className="about-stat"><span className="stat-star">✳</span><strong>Make every<br />claim count.</strong><small>Transparency for a world that’s ready to ask better questions.</small></div>
       </section>
 
       <footer className="site-footer"><div className="footer-brand"><Mark /><span>verity<span className="wordmark-period">.</span></span></div><p>Proof behind every promise.</p><div className="footer-right"><a href="mailto:hello@verity.eco">Contact</a><span>© 2026 Verity</span><span className="footer-location">Built for better choices <span>✳</span></span></div></footer>
