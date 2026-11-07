@@ -889,3 +889,145 @@ body { color: #edf1f4; background: var(--bg); }
   .header-inner { min-height: 88px; }
   .header-search { height: 33px; }
 }
+
+/* Extra-slim floating bar */
+.app-shell { padding-top: 78px; }
+.header-inner { min-height: 42px; }
+.wordmark { font-size: 21px; }
+.wordmark-mark { width: 26px; height: 26px; }
+.header-search { height: 27px; }
+@media (max-width: 760px) {
+  .app-shell { padding-top: 96px; }
+  .site-header { border-radius: 23px; }
+  .header-inner { min-height: 75px; padding: 4px 14px 6px; gap: 4px 10px; }
+  .header-search { height: 28px; }
+  .primary-nav { padding-top: 0; }
+}
+@media (max-width: 480px) {
+  .app-shell { padding-top: 91px; }
+  .site-header { border-radius: 20px; }
+  .header-inner { min-height: 70px; padding: 3px 12px 5px; gap: 3px 8px; }
+  .header-search { height: 27px; }
+}
+
+/* Let the hero shader continue behind the floating header */
+.hero-section { margin-top: -78px; padding-top: 119px; }
+.branch-image { bottom: -67%; }
+@media (max-width: 760px) {
+  .hero-section { margin-top: -96px; padding-top: 134px; }
+  .branch-image { bottom: -69%; }
+}
+@media (max-width: 480px) {
+  .hero-section { margin-top: -91px; padding-top: 126px; }
+  .branch-image { bottom: -66%; }
+}
+
+.hero-intro {
+  position: absolute;
+  top: 119px;
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+}
+@media (max-width: 760px) {
+  .hero-intro { top: 134px; }
+}
+@media (max-width: 480px) {
+  .hero-intro { top: 126px; }
+}
+
+/* Full-screen editorial hero with a visibly moving ShaderGradient field */
+.hero-section {
+  width: 100%;
+  height: 100svh;
+  min-height: 700px;
+  padding-top: 0;
+}
+.hero-intro {
+  top: clamp(110px, 14vh, 170px);
+  width: min(94vw, 1400px);
+}
+.hero-intro h1 {
+  color: #111820;
+  font-size: clamp(105px, 20vw, 320px);
+  line-height: .76;
+  letter-spacing: -.075em;
+}
+.hero-intro .eyebrow { margin-bottom: 20px; }
+.hero-description { margin-top: 46px; }
+.shader-field {
+  background:
+    radial-gradient(ellipse at 22% 32%, rgba(209, 225, 235, .92), transparent 44%),
+    radial-gradient(ellipse at 75% 70%, rgba(225, 235, 241, .88), transparent 42%),
+    #fff;
+  background-size: 165% 165%;
+  animation: hero-gradient-drift 9s ease-in-out infinite alternate;
+}
+@keyframes hero-gradient-drift {
+  0% { background-position: 0% 15%; }
+  100% { background-position: 100% 85%; }
+}
+.branch-image { bottom: -27%; }
+
+@media (max-width: 1050px) {
+  .hero-section { height: 100svh; min-height: 700px; }
+  .branch-image { bottom: -27%; }
+}
+@media (max-width: 760px) {
+  .hero-section { height: 100svh; min-height: 720px; padding-top: 0; }
+  .hero-intro { top: 132px; width: 92vw; }
+  .hero-intro h1 { font-size: clamp(86px, 18vw, 190px); }
+  .hero-intro .eyebrow { margin-bottom: 16px; }
+  .hero-description { margin-top: 24px; }
+  .branch-image { bottom: -22%; width: 128%; }
+}
+@media (max-width: 480px) {
+  .hero-section { height: 100svh; min-height: 700px; }
+  .hero-intro { top: 126px; }
+  .hero-intro h1 { font-size: clamp(78px, 20vw, 120px); }
+  .hero-description { max-width: 345px; }
+  .branch-image { bottom: -19%; width: 160%; }
+}
+.shader-field canvas { display: block; width: 100% !important; height: 100% !important; }
+.shader-field::after {
+  position: absolute;
+  z-index: 1;
+  inset: -12%;
+  background-image:
+    radial-gradient(ellipse at 28% 42%, rgba(181, 202, 216, .72) 0, rgba(215, 228, 237, .44) 35%, transparent 62%),
+    radial-gradient(ellipse at 74% 67%, rgba(221, 234, 241, .85) 0, transparent 53%);
+  background-size: 160% 150%, 150% 160%;
+  background-position: 0% 40%, 100% 60%;
+  content: '';
+  mix-blend-mode: multiply;
+  opacity: .78;
+  pointer-events: none;
+  animation: shader-gradient-visible-motion 8s ease-in-out infinite alternate;
+}
+@keyframes shader-gradient-visible-motion {
+  0% { background-position: 0% 35%, 100% 65%; transform: scale(.96) translateX(-2%); }
+  100% { background-position: 100% 65%, 0% 35%; transform: scale(1.06) translateX(2%); }
+}
+
+/* Slightly shorter hero, with deeper blue-gray in the moving field */
+.hero-section { height: 92svh; min-height: 640px; }
+.shader-field {
+  background:
+    radial-gradient(ellipse at 22% 32%, rgba(183, 201, 213, .96), transparent 44%),
+    radial-gradient(ellipse at 75% 70%, rgba(213, 223, 230, .94), transparent 42%),
+    #fff;
+}
+.shader-field::after {
+  background-image:
+    radial-gradient(ellipse at 28% 42%, rgba(151, 171, 185, .82) 0, rgba(193, 207, 217, .58) 35%, transparent 62%),
+    radial-gradient(ellipse at 74% 67%, rgba(212, 223, 230, .88) 0, transparent 53%);
+}
+@media (max-width: 1050px) {
+  .hero-section { height: 92svh; min-height: 640px; }
+}
+@media (max-width: 760px) {
+  .hero-section { height: 92svh; min-height: 640px; }
+}
+@media (max-width: 480px) {
+  .hero-section { height: 92svh; min-height: 620px; }
+}

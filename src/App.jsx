@@ -201,15 +201,16 @@ function BranchArtwork() {
           <ShaderGradient
             type="plane"
             animate="on"
-            uSpeed={0.16}
-            uStrength={1.35}
-            uDensity={1.1}
-            uFrequency={1.4}
+            uSpeed={0.56}
+            uStrength={3.8}
+            uDensity={2.15}
+            uFrequency={2.35}
             color1="#ffffff"
-            color2="#e7eef2"
-            color3="#f5f8fa"
+            color2="#a6b7c3"
+            color3="#e7eef2"
             brightness={1.1}
-            grain="off"
+            grain="on"
+            grainBlending={0.32}
             cDistance={3.6}
             cPolarAngle={90}
           />
