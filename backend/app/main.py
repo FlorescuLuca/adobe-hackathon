@@ -11,7 +11,7 @@ from app.config import Settings, get_settings
 from app.dependencies import company_for_user, get_supabase, get_user_id, owned_product
 from app.schemas import (
     AssessmentRequest, AssessmentResult, ClaimCreate, ClaimUpdate,
-    CompanyCreate, ProductCreate, ProductUpdate,
+    CompanyCreate, CompanyProfileUpdate, ProductCreate, ProductUpdate,
 )
 
 app = FastAPI(title="VERITY API", version="0.1.0")
@@ -57,7 +57,31 @@ def create_company(payload: CompanyCreate, user_id: str = Depends(get_user_id), 
 
 @app.get(api + "/companies/me")
 def get_my_company(user_id: str = Depends(get_user_id), client: Client = Depends(get_supabase)):
-    return company_for_user(client, user_id)
+    company = company_for_user(client, user_id)
+    return {field: company.get(field) for field in (
+        "id", "name", "created_at", "brand_category", "brand_tagline", "brand_published",
+    )}
+
+
+@app.patch(api + "/companies/me")
+def update_my_company(payload: CompanyProfileUpdate, user_id: str = Depends(get_user_id),
+                      client: Client = Depends(get_supabase)):
+    company = company_for_user(client, user_id)
+    changes = payload.model_dump(exclude_unset=True)
+    if not changes:
+        raise HTTPException(status_code=422, detail="At least one field is required.")
+    category = changes.get("brand_category", company.get("brand_category"))
+    tagline = changes.get("brand_tagline", company.get("brand_tagline"))
+    published = changes.get("brand_published", company.get("brand_published", False))
+    if published and (not category or not tagline):
+        raise HTTPException(status_code=422, detail="Add a brand category and tagline before publishing your brand profile.")
+    try:
+        updated = client.table("companies").update(changes).eq("id", company["id"]).execute().data[0]
+        return {field: updated.get(field) for field in (
+            "id", "name", "created_at", "brand_category", "brand_tagline", "brand_published",
+        )}
+    except Exception as exc:
+        db_failure(exc)
 
 
 @app.get(api + "/companies/me/documents")
@@ -337,6 +361,18 @@ async def create_assessment(product_id: uuid.UUID, payload: AssessmentRequest, u
 def list_public_products(client: Client = Depends(get_supabase)):
     return (client.table("products").select("id,name,description,slug")
             .eq("is_published", True).order("created_at", desc=True).limit(100).execute().data)
+
+
+@app.get(api + "/public/brands")
+def list_public_brands(client: Client = Depends(get_supabase)):
+    rows = (client.table("companies").select("id,name,brand_category,brand_tagline")
+            .eq("brand_published", True).order("created_at", desc=True).limit(100).execute().data)
+    return [{**row, "short": "BR", "tone": "mint", "plain": True,
+             "claim": row["brand_tagline"], "pending": True,
+             "valid": "Company profile · Assessment pending",
+             "status": "Pending", "scoreCopy": "No assessment yet",
+             "summary": f"{row['name']} describes its brand as: {row['brand_tagline']}. Company-wide sustainability evidence and product claims can be reviewed in the VERITY dashboard.",
+             "evidence": []} for row in rows]
 
 
 @app.get(api + "/public/products/{slug}")

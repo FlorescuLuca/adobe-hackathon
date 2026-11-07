@@ -51,6 +51,9 @@ export default function BusinessDashboard({ session, onSignOut }) {
   const [portfolioHasRun, setPortfolioHasRun] = useState(false);
   const [portfolioProgress, setPortfolioProgress] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [brandCategory, setBrandCategory] = useState('');
+  const [brandTagline, setBrandTagline] = useState('');
+  const [brandPublished, setBrandPublished] = useState(false);
   const [productName, setProductName] = useState('');
   const [productDescription, setProductDescription] = useState('');
   const [claimText, setClaimText] = useState('');
@@ -80,6 +83,9 @@ export default function BusinessDashboard({ session, onSignOut }) {
       .then(async (row) => {
         if (!alive) return;
         setCompany(row);
+        setBrandCategory(row.brand_category || '');
+        setBrandTagline(row.brand_tagline || '');
+        setBrandPublished(Boolean(row.brand_published));
         setNeedsCompany(false);
         const [productRows, reportRows] = await Promise.all([
           apiRequest('/products', { session }),
@@ -137,6 +143,25 @@ export default function BusinessDashboard({ session, onSignOut }) {
       setCompanyName('');
       setProducts([]);
       setCompanyDocuments([]);
+    });
+  }
+
+  function saveBrandProfile(event) {
+    event.preventDefault();
+    return run(async () => {
+      const updated = await apiRequest('/companies/me', {
+        session,
+        method: 'PATCH',
+        body: JSON.stringify({
+          brand_category: brandCategory.trim() || null,
+          brand_tagline: brandTagline.trim() || null,
+          brand_published: brandPublished,
+        }),
+      });
+      setCompany(updated);
+      setBrandCategory(updated.brand_category || '');
+      setBrandTagline(updated.brand_tagline || '');
+      setBrandPublished(Boolean(updated.brand_published));
     });
   }
 
@@ -329,6 +354,19 @@ export default function BusinessDashboard({ session, onSignOut }) {
       ) : company && (
         <>
           <div className="dashboard-overview"><span>COMPANY</span><strong>{company.name}</strong><span>{products.length} {products.length === 1 ? 'product' : 'products'}</span></div>
+
+          <section className="dashboard-panel company-evidence-panel">
+            <div className="dashboard-section-heading"><div><p className="eyebrow">PUBLIC BRAND PROFILE</p><h2>Your brand</h2></div><span className="company-evidence-count">{brandPublished ? 'PUBLISHED' : 'HIDDEN'}</span></div>
+            <p className="dashboard-panel-copy">Add your company to the public profiles section. Your brand card uses your company name, category, and tagline; publishing a brand profile does not certify its claims.</p>
+            <form className="dashboard-form" onSubmit={saveBrandProfile}>
+              <label htmlFor="brand-category">Brand category</label>
+              <input id="brand-category" value={brandCategory} onChange={(event) => setBrandCategory(event.target.value)} maxLength={120} placeholder="Fashion, home goods, food…" />
+              <label htmlFor="brand-tagline">Short brand tagline</label>
+              <textarea id="brand-tagline" value={brandTagline} onChange={(event) => setBrandTagline(event.target.value)} maxLength={240} rows={2} placeholder="A short description shown on your public card" />
+              <label className="dashboard-brand-publish"><input type="checkbox" checked={brandPublished} onChange={(event) => setBrandPublished(event.target.checked)} /> Show my brand in the public profiles section</label>
+              <button className="dashboard-primary" disabled={busy}>{busy ? 'Saving…' : 'Save brand profile'}</button>
+            </form>
+          </section>
 
           <section className="dashboard-panel company-evidence-panel">
             <div className="dashboard-section-heading">

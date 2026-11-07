@@ -31,7 +31,9 @@ def get_user_id(
 
 
 def company_for_user(client: Client, user_id: str) -> dict:
-    rows = client.table("companies").select("id,name").eq("owner_user_id", user_id).limit(1).execute().data
+    # Keep the full company row here so profile fields survive dashboard reloads
+    # and PATCH requests can preserve values omitted from the request body.
+    rows = client.table("companies").select("*").eq("owner_user_id", user_id).limit(1).execute().data
     if not rows:
         raise HTTPException(status_code=404, detail="Create a company before managing products.")
     return rows[0]

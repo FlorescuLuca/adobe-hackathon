@@ -5,138 +5,6 @@ import { apiRequest } from './api.js';
 import BusinessDashboard from './BusinessDashboard.jsx';
 import PublicTransparencyPage from './PublicTransparencyPage.jsx';
 
-const brands = [
-  {
-    name: 'Evergreen Goods',
-    short: 'EG',
-    category: 'Home essentials',
-    score: '98',
-    claim: 'Made with 100% recycled cotton',
-    source: 'Recycled Claim Standard (RCS)',
-    valid: 'Verified 2 hours ago',
-    tone: 'mint',
-    summary:
-      'Evergreen Goods’ cotton collection is made with post-consumer recycled fibers. Supplier invoices and a current RCS scope certificate support the material claim across the collection reviewed by Verity.',
-    evidence: [
-      ['Material traceability', 'Recycled fiber invoices matched to product batches'],
-      ['Supplier certificate', 'RCS scope certificate active through 18 Jun 2027'],
-      ['Independent registry', 'Certificate holder confirmed in the Textile Exchange directory'],
-    ],
-  },
-  {
-    name: 'Northstar Studio',
-    short: 'NS',
-    category: 'Apparel',
-    score: '94',
-    claim: 'Responsibly made in audited facilities',
-    source: 'Fair Wear membership & facility audit',
-    valid: 'Verified yesterday',
-    tone: 'blue',
-    summary:
-      'Northstar Studio publishes factory-level information for its core collection. Verity matched the disclosed production sites with current audit records and reviewed the brand’s latest supplier list.',
-    evidence: [
-      ['Factory disclosure', 'Three production facilities named in the latest supplier list'],
-      ['Social audit', 'Audit records reviewed for all named facilities'],
-      ['Public cross-check', 'Brand membership status confirmed with Fair Wear'],
-    ],
-  },
-  {
-    name: 'TerraStep',
-    short: 'TS',
-    category: 'Footwear',
-    score: '91',
-    claim: 'Leather sourced from certified tanneries',
-    source: 'Leather Working Group (LWG)',
-    valid: 'Verified 5 days ago',
-    tone: 'violet',
-    summary:
-      'TerraStep’s leather sourcing claim is supported by tannery documentation and current facility certifications. Verity checked the certificate holders and validity dates against public records.',
-    evidence: [
-      ['Tannery documents', 'Purchase records mapped to disclosed tannery partners'],
-      ['Facility certification', 'Two tanneries hold current LWG ratings'],
-      ['Validity check', 'Certificate dates confirmed against public facility records'],
-    ],
-  },
-  {
-    name: 'Kindred Supply',
-    short: 'KS',
-    category: 'Personal care',
-    score: '96',
-    claim: 'Packaging is 85% plastic-free',
-    source: 'Packaging composition review',
-    valid: 'Verified 1 week ago',
-    tone: 'amber',
-    summary:
-      'Kindred Supply’s packaging statement is based on a product-weight analysis. Verity reviewed packaging specifications and supplier declarations for the items included in the published claim.',
-    evidence: [
-      ['Packaging breakdown', 'Material weights reconciled across 12 products'],
-      ['Supplier declarations', 'Current composition statements received from vendors'],
-      ['Claim scope', 'Products in the claim are clearly identified on the brand page'],
-    ],
-  },
-];
-
-const featuredBrands = [
-  {
-    name: 'IKEA',
-    short: 'IK',
-    category: 'Home furnishing',
-    score: null,
-    claim: '99.5% of the wood in our products is FSC-certified or recycled',
-    source: 'IKEA Sustainability Report FY21',
-    valid: 'Company report · FY21',
-    tone: 'blue',
-    plain: true,
-    url: 'https://www.ikea.com',
-    status: 'Supported by report',
-    scoreCopy: 'Score available after full assessment',
-    evidenceLabel: 'From report',
-    summary:
-      'IKEA’s FY21 Sustainability Report states that 99.5% of the wood used for IKEA products is FSC-certified or recycled (p. 5). The same report shows that only 14% of total wood used is recycled, so a claim that most IKEA wood is recycled would not be supported. Figures are self-reported and were not cross-checked against the FSC registry.',
-    evidence: [
-      ['Wood sourcing', '99.5% of wood is FSC-certified or recycled (report p. 5)'],
-      ['Recycled share', '14% of total wood used is recycled; goal of one-third by 2030 (report p. 5)'],
-      ['Evidence limits', 'Self-reported by IKEA; certificates not independently cross-checked'],
-    ],
-  },
-  {
-    name: 'Nike',
-    short: 'NK',
-    category: 'Footwear & apparel',
-    score: null,
-    claim: 'Assessment pending',
-    source: 'No documents reviewed yet',
-    valid: 'Not yet assessed',
-    tone: 'violet',
-    plain: true,
-    pending: true,
-    url: 'https://www.nike.com',
-    status: 'Pending',
-    scoreCopy: 'No assessment yet',
-    summary:
-      'Verity has not assessed Nike yet. Once the company’s sustainability report and marketing claims are uploaded and analysed, the evidence and trust score will appear here.',
-    evidence: [],
-  },
-  {
-    name: 'Inditex',
-    short: 'IN',
-    category: 'Fashion retail',
-    score: null,
-    claim: 'Assessment pending',
-    source: 'No documents reviewed yet',
-    valid: 'Not yet assessed',
-    tone: 'mint',
-    plain: true,
-    pending: true,
-    url: 'https://www.inditex.com',
-    status: 'Pending',
-    scoreCopy: 'No assessment yet',
-    summary:
-      'Verity has not assessed Inditex yet. Once the company’s sustainability report and marketing claims are uploaded and analysed, the evidence and trust score will appear here.',
-    evidence: [],
-  },
-];
-
 function Mark({ className = '' }) {
   return (
     <svg className={className} viewBox="0 0 34 34" fill="none" aria-hidden="true">
@@ -371,7 +239,7 @@ function BrandCard({ brand, onSelectBrand }) {
   );
 }
 
-function HomePage({ products, productsLoading, onSelectProduct, onSelectBrand, onPartner }) {
+function HomePage({ products, brands, productsLoading, onSelectProduct, onSelectBrand, onPartner }) {
   return (
     <main>
         <section className="hero-section">
@@ -385,9 +253,9 @@ function HomePage({ products, productsLoading, onSelectProduct, onSelectBrand, o
       <section className="brands-section section-wrap" id="trusted-brands">
         <div className="section-heading">
           <div className="section-title"><p className="eyebrow">A MORE OPEN MARKET</p><h2>Good brands.<br /><em>Clear receipts.</em></h2></div>
-            <div className="section-heading-aside"><p>Explore published product profiles and the evidence companies provide for their sustainability claims.</p><span className="heading-count">{String(products.length + featuredBrands.length).padStart(2, '0')} <i>PROFILES</i></span></div>
+            <div className="section-heading-aside"><p>Explore company brand profiles and published product evidence.</p><span className="heading-count">{String(products.length + brands.length).padStart(2, '0')} <i>PROFILES</i></span></div>
         </div>
-        <div className="brand-grid">{featuredBrands.map((brand) => <BrandCard key={brand.name} brand={brand} onSelectBrand={onSelectBrand} />)}{products.map((product, index) => <ProductCard key={product.id} product={product} index={index} onSelectProduct={onSelectProduct} />)}</div>
+        <div className="brand-grid">{brands.map((brand) => <BrandCard key={brand.id} brand={brand} onSelectBrand={onSelectBrand} />)}{products.map((product, index) => <ProductCard key={product.id} product={product} index={index} onSelectProduct={onSelectProduct} />)}</div>
         {!products.length && productsLoading && <p className="no-published-products">Loading published product profiles…</p>}
         <div className="brand-section-footer"><span className="tiny-orbit">✳</span><span>Verity is growing a more transparent way to shop.</span><button type="button" className="partner-footer-link" onClick={onPartner}>Partner with us <ArrowIcon /></button></div>
       </section>
@@ -588,8 +456,8 @@ function CompanySignup({ onSignedUp, onBackToLogin }) {
             <form className="company-login-form" onSubmit={handleSubmit}>
               <label htmlFor="signup-company-name">Company name</label>
               <input id="signup-company-name" name="companyName" type="text" autoComplete="organization" placeholder="Your company" value={companyName} onChange={(event) => setCompanyName(event.target.value)} required />
-              <label htmlFor="signup-company-email">Work email</label>
-              <input id="signup-company-email" name="email" type="email" autoComplete="email" placeholder="you@company.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
+              <label htmlFor="signup-company-email">Email address (personal or work)</label>
+              <input id="signup-company-email" name="email" type="email" inputMode="email" autoCapitalize="none" autoComplete="email" placeholder="name@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
               <label htmlFor="signup-company-password">Password</label>
               <input id="signup-company-password" name="password" type="password" autoComplete="new-password" minLength={8} placeholder="At least 8 characters" value={password} onChange={(event) => setPassword(event.target.value)} required />
               <label htmlFor="signup-company-confirm-password">Confirm password</label>
@@ -692,22 +560,22 @@ function BrandProfile({ brand, onBack }) {
     <main className="profile-page">
       <div className="profile-top section-wrap">
         <button type="button" className="back-link" onClick={onBack}><span>←</span> Back to Verity</button>
-        <span className="profile-generated"><span className="status-dot" /> VERITY AI SUMMARY</span>
+        <span className="profile-generated"><span className="status-dot" /> COMPANY PROVIDED PROFILE</span>
       </div>
       <section className="profile-hero section-wrap">
         <BrandLogo brand={brand} className="brand-logo-profile" />
         <p className="eyebrow">BRAND EVIDENCE PROFILE</p>
         <h1>{brand.name}</h1>
-        <p className="profile-category">{brand.category} <span>·</span> Independent evidence overview</p>
+        <p className="profile-category">{brand.brand_category || brand.category} <span>·</span> Company profile</p>
         <VerificationPill>{brand.valid}</VerificationPill>
-        <div className="profile-links"><a href="#evidence">View evidence chain <ArrowIcon /></a><a href={brand.url || 'https://example.com'} target="_blank" rel="noreferrer">Visit brand <ArrowIcon diagonal /></a></div>
+        <div className="profile-links"><a href="#evidence">View evidence chain <ArrowIcon /></a>{brand.url && <a href={brand.url} target="_blank" rel="noreferrer">Visit brand <ArrowIcon diagonal /></a>}</div>
       </section>
       <div className="profile-content section-wrap">
         <section className="profile-summary panel">
           <div className="panel-heading"><div><p className="eyebrow">AI-GENERATED SUMMARY</p><h2>What the evidence says</h2></div><span className="summary-spark">✳</span></div>
           <p className="summary-text">{brand.summary}</p>
-          <div className="claim-box"><span className="claim-icon">“</span><div><small>THE BRAND CLAIM</small><strong>{brand.claim}</strong><small className="claim-source">Evidence source · {brand.source}</small></div><span className="claim-status"><span className="status-dot" />{brand.status || 'Supported'}</span></div>
-          <p className="summary-disclaimer">This summary reflects the documents and public records reviewed by Verity at the time shown. It is designed to make the evidence easier to understand.</p>
+          <div className="claim-box"><span className="claim-icon">“</span><div><small>BRAND TAGLINE</small><strong>{brand.claim}</strong>{brand.source && <small className="claim-source">Evidence source · {brand.source}</small>}</div><span className="claim-status"><span className="status-dot" />{brand.status || 'Supported'}</span></div>
+          <p className="summary-disclaimer">This brand profile is provided by the company. It is not an independent sustainability assessment or certification.</p>
         </section>
         <aside className="profile-score panel">
           <p className="eyebrow">VERITY TRUST SCORE</p>
@@ -733,6 +601,7 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [publicSlug, setPublicSlug] = useState(() => decodeURIComponent(window.location.pathname.match(/^\/p\/([^/]+)/)?.[1] || ''));
   const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
 
   useEffect(() => {
@@ -743,9 +612,13 @@ export default function App() {
     if (activePage !== 'home' || publicSlug) return;
     let cancelled = false;
     setProductsLoading(true);
-    apiRequest('/public/products')
-      .then((publishedProducts) => { if (!cancelled) setProducts(publishedProducts); })
-      .catch(() => { if (!cancelled) setProducts([]); })
+    Promise.all([apiRequest('/public/products'), apiRequest('/public/brands')])
+      .then(([publishedProducts, publishedBrands]) => {
+        if (cancelled) return;
+        setProducts(publishedProducts);
+        setBrands(publishedBrands.map((brand) => ({ ...brand, category: brand.brand_category, evidence: brand.evidence || [] })));
+      })
+      .catch(() => { if (!cancelled) { setProducts([]); setBrands([]); } })
       .finally(() => { if (!cancelled) setProductsLoading(false); });
     return () => { cancelled = true; };
   }, [activePage, publicSlug]);
@@ -832,7 +705,7 @@ export default function App() {
   return (
     <div className={`app-shell${activePage === 'partner' ? ' partner-active' : ''}`}>
       <Header query={query} setQuery={setQuery} products={products} onSelectProduct={openProduct} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} isSignedIn={Boolean(session)} />
-      {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'signup' ? <CompanySignup onBackToLogin={returnToCompanyLogin} onSignedUp={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'login' ? <CompanyLogin onSignUp={openCompanySignup} onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} productsLoading={productsLoading} onSelectProduct={openProduct} onSelectBrand={openBrand} onPartner={() => navigateTo('partner')} />}
+      {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'signup' ? <CompanySignup onBackToLogin={returnToCompanyLogin} onSignedUp={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'login' ? <CompanyLogin onSignUp={openCompanySignup} onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} brands={brands} productsLoading={productsLoading} onSelectProduct={openProduct} onSelectBrand={openBrand} onPartner={() => navigateTo('partner')} />}
     </div>
   );
 }
