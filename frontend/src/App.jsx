@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ShaderGradient, ShaderGradientCanvas } from '@shadergradient/react';
-import { authConfigured, getValidSession, signInWithPassword, signOut as signOutAuth } from './auth.js';
+import { authConfigured, getValidSession, signInWithPassword, signUpWithPassword, signOut as signOutAuth } from './auth.js';
 import { apiRequest } from './api.js';
 import BusinessDashboard from './BusinessDashboard.jsx';
 import PublicTransparencyPage from './PublicTransparencyPage.jsx';
@@ -144,7 +143,6 @@ function Header({ query, setQuery, products, onSelectProduct, onHome, onNavigate
               if (event.key === 'Escape') setSearchOpen(false);
             }}
           />
-          <kbd>⌘ K</kbd>
           {searchOpen && (
             <div className="search-results">
               <p className="search-label">{query ? 'PUBLISHED PRODUCTS' : 'RECENTLY PUBLISHED'}</p>
@@ -215,28 +213,7 @@ function BranchArtwork() {
 
   return (
     <div className="branch-art" aria-label="Moss and lichen growing on a fallen tree branch" role="img">
-      <div className="shader-field" aria-hidden="true">
-        <ShaderGradientCanvas style={{ position: 'absolute', inset: 0 }} pixelDensity={1} fov={45}>
-          <ShaderGradient
-            type="waterPlane"
-            animate="on"
-            uSpeed={1.15}
-            uStrength={5.8}
-            uDensity={1.9}
-            uFrequency={2.7}
-            smoothTime={0.55}
-            enableTransition
-            color1="#f7fbfd"
-            color2="#526b7d"
-            color3="#c5d6e1"
-            brightness={1.25}
-            grain="on"
-            grainBlending={0.4}
-            cDistance={3.6}
-            cPolarAngle={90}
-          />
-        </ShaderGradientCanvas>
-      </div>
+      <div className="shader-field" aria-hidden="true" />
       <img ref={branchRef} className="branch-image" src="/mossy-branch.png" alt="" />
       <div className="branch-label"><span className="status-dot" /> MATERIAL TRACEABILITY · VERIFIED</div>
     </div>
@@ -291,7 +268,7 @@ function HomePage({ products, productsLoading, onSelectProduct, onPartner }) {
         <section className="hero-section">
         <div className="hero-intro">
             <h1>VERITY</h1>
-            <p className="hero-description">Turn Sustainability Claims Into Verified Sales.</p>
+            <p className="hero-description">Turn Sustainability Claims Into Verified Sales</p>
           </div>
           <BranchArtwork />
       </section>
@@ -324,36 +301,8 @@ function HomePage({ products, productsLoading, onSelectProduct, onPartner }) {
       </section>
 
       <section className="about-section section-wrap" id="about">
-        <div className="about-copy">
-          <div className="about-kicker-row">
-            <div className="about-symbol about-symbol-inline" aria-hidden="true"><Mark /><span className="about-orbit" /><span className="about-orbit orbit-b" /></div>
-            <p className="eyebrow">A LITTLE ABOUT US</p>
-          </div>
-          <h2>Good decisions need<br /><em>good information.</em></h2>
-          <p>Verity bridges this gap by replacing static, unverified “100% Recycled” or “Eco-Friendly” marketing badges with a dynamic verification layer.</p>
-          <div className="about-problem-solution">
-            <section className="about-context-block">
-              <h3>Problem</h3>
-              <p>E-commerce faces a massive trust deficit regarding corporate sustainability. Brands invest heavily in ethical supply chains and eco-friendly marketing, but cynical consumers often dismiss these claims as “greenwashing.”</p>
-            </section>
-            <section className="about-context-block">
-              <h3>Solution</h3>
-              <p>We bridge the gap between eco-conscious consumers and authentic brands. Verity shifts the paradigm from <em>unverified marketing claims</em> to <em>independent AI validation</em>. A single search gives you a clear, factual report that either validates or debunks a company’s eco-claims.</p>
-            </section>
-          </div>
-          <p className="about-platform-intro">To deliver transparency for a world that's ready to ask better questions, Verity operates as a two-sided platform:</p>
-          <ul className="about-audiences">
-            <li>
-              <strong>For Conscious Shoppers:</strong>
-              <p>We provide a dedicated AI search engine. Instead of taking green marketing at face value, you can search for any brand to see exactly how trusted they are and verify if their sustainability claims are actually true.</p>
-            </li>
-            <li>
-              <strong>For Ethical Brands:</strong>
-              <p>We offer a space to make every claim count. Companies that back up their promises can log in, choose a subscription plan, and be prominently featured as a trusted brand on our main page. This allows genuinely sustainable companies to promote their products directly to a high-intent audience that values verified ethics.</p>
-            </li>
-          </ul>
-          <a href="mailto:hello@verity.eco" className="about-link">Get to know Verity <ArrowIcon /></a>
-        </div>
+        <div className="about-symbol"><Mark /><span className="about-orbit" /><span className="about-orbit orbit-b" /></div>
+        <div className="about-copy"><p className="eyebrow">A LITTLE ABOUT US</p><h2>Good decisions need<br /><em>good information.</em></h2><p>Verity exists to make sustainability less of a leap of faith. We connect the words on a product page to the documents, standards, and suppliers behind them—so shoppers and brands can meet in a place built on trust.</p><a href="mailto:hello@verity.eco" className="about-link">Get to know Verity <ArrowIcon /></a></div>
         <div className="about-stat"><span className="stat-star">✳</span><strong>Make every<br />claim count.</strong><small>Transparency for a world that’s ready to ask better questions.</small></div>
       </section>
 
@@ -362,7 +311,7 @@ function HomePage({ products, productsLoading, onSelectProduct, onPartner }) {
   );
 }
 
-function CompanyLogin({ onSignedIn }) {
+function CompanyLogin({ onSignedIn, onSignUp }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -433,7 +382,93 @@ function CompanyLogin({ onSignedIn }) {
               {error && <p className="api-alert" role="alert">{error}</p>}
               <p className="company-login-demo-note">Use the account created for your company in Supabase Auth.</p>
             </form>
+            <button className="login-secondary-button company-auth-switch" type="button" onClick={onSignUp}>Don’t have an account? Sign up!</button>
         </>
+      </section>
+    </main>
+  );
+}
+
+function CompanySignup({ onSignedUp, onBackToLogin }) {
+  const [companyName, setCompanyName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [confirmationEmail, setConfirmationEmail] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError('');
+    if (password !== confirmPassword) {
+      setError('Your passwords don’t match.');
+      return;
+    }
+    if (!authConfigured) {
+      setError('Supabase is not configured. Add the frontend URL and publishable key to frontend/.env.local.');
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await signUpWithPassword({ companyName: companyName.trim(), email: email.trim(), password });
+      if (result.session) {
+        setPassword('');
+        setConfirmPassword('');
+        onSignedUp(result.session);
+      } else {
+        setConfirmationEmail(result.email || email.trim());
+      }
+    } catch (signupError) {
+      setError(signupError.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <main className="company-login-page company-signup-page">
+      <section className="company-login-intro">
+        <p className="eyebrow"><Mark className="company-login-leaf" /> VERITY FOR COMPANIES</p>
+        <h1>Start building<br /><em>trust with proof.</em></h1>
+        <p className="company-login-lead">Create a company account to organize product evidence and make verified claims easier to share.</p>
+        <div className="company-login-benefits">
+          <div><span>01</span><p><strong>One clear workspace</strong><small>Keep product claims and supporting documents together.</small></p></div>
+          <div><span>02</span><p><strong>Evidence customers can follow</strong><small>Build transparency pages from your verified information.</small></p></div>
+          <div><span>03</span><p><strong>Plans for your stage</strong><small>Choose the tools that fit the way your brand works.</small></p></div>
+        </div>
+      </section>
+
+      <section className="company-login-panel" aria-labelledby="company-signup-title">
+        <div className="company-login-panel-brand"><Mark /><span>COMPANY PORTAL</span></div>
+        {confirmationEmail ? (
+          <div className="company-login-success" role="status">
+            <span className="company-login-success-icon" aria-hidden="true">✓</span>
+            <p className="eyebrow">ONE LAST STEP</p>
+            <h2 id="company-signup-title">Check your inbox</h2>
+            <p className="company-login-success-copy">We sent a confirmation link to <strong>{confirmationEmail}</strong>. Confirm your email, then log in to your company workspace.</p>
+            <button className="login-secondary-button" type="button" onClick={onBackToLogin}>Back to login <ArrowIcon /></button>
+          </div>
+        ) : (
+          <>
+            <p className="eyebrow">CREATE A COMPANY ACCOUNT</p>
+            <h2 id="company-signup-title">Sign up</h2>
+            <p className="company-login-panel-copy">Set up your brand’s Verity workspace.</p>
+            <form className="company-login-form" onSubmit={handleSubmit}>
+              <label htmlFor="signup-company-name">Company name</label>
+              <input id="signup-company-name" name="companyName" type="text" autoComplete="organization" placeholder="Your company" value={companyName} onChange={(event) => setCompanyName(event.target.value)} required />
+              <label htmlFor="signup-company-email">Work email</label>
+              <input id="signup-company-email" name="email" type="email" autoComplete="email" placeholder="you@company.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
+              <label htmlFor="signup-company-password">Password</label>
+              <input id="signup-company-password" name="password" type="password" autoComplete="new-password" minLength={8} placeholder="At least 8 characters" value={password} onChange={(event) => setPassword(event.target.value)} required />
+              <label htmlFor="signup-company-confirm-password">Confirm password</label>
+              <input id="signup-company-confirm-password" name="confirmPassword" type="password" autoComplete="new-password" minLength={8} placeholder="Re-enter your password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required />
+              <button className="company-login-submit" type="submit" disabled={busy}>{busy ? 'Creating account…' : 'Create account'} <ArrowIcon /></button>
+              {error && <p className="api-alert" role="alert">{error}</p>}
+            </form>
+            <button className="login-secondary-button company-auth-switch" type="button" onClick={onBackToLogin}>Already have an account? Log in</button>
+          </>
+        )}
       </section>
     </main>
   );
@@ -489,7 +524,7 @@ function PartnerPlansPage() {
       <section className="partner-intro section-wrap">
         <p className="eyebrow"><span className="eyebrow-mark">✳</span>VERITY FOR BRANDS</p>
         <h1>Make trust part<br /><em>of your story.</em></h1>
-        <p className="partner-intro-copy">Give your customers a clearer view of the evidence behind your sustainability claims.</p>
+        <p className="partner-intro-copy">Choose your subscription below !</p>
       </section>
       <section className="partner-plans section-wrap" aria-label="Subscription plans">
         <div className="partner-plans-heading">
@@ -632,8 +667,22 @@ export default function App() {
 
   function openCompanyLogin() {
     setSelectedBrand(null);
+    setPublicSlug('');
     setActivePage(session ? 'dashboard' : 'login');
     setQuery('');
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function openCompanySignup() {
+    setSelectedBrand(null);
+    setPublicSlug('');
+    setActivePage('signup');
+    setQuery('');
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  function returnToCompanyLogin() {
+    setActivePage('login');
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
@@ -647,7 +696,7 @@ export default function App() {
   return (
     <div className={`app-shell${activePage === 'partner' ? ' partner-active' : ''}`}>
       <Header query={query} setQuery={setQuery} products={products} onSelectProduct={openProduct} onHome={showHome} onNavigate={navigateTo} onCompanyLogin={openCompanyLogin} isSignedIn={Boolean(session)} />
-      {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'login' ? <CompanyLogin onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} productsLoading={productsLoading} onSelectProduct={openProduct} onPartner={() => navigateTo('partner')} />}
+      {publicSlug ? <PublicTransparencyPage slug={publicSlug} onHome={showHome} /> : selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : activePage === 'signup' ? <CompanySignup onBackToLogin={returnToCompanyLogin} onSignedUp={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'login' ? <CompanyLogin onSignUp={openCompanySignup} onSignedIn={(nextSession) => { setSession(nextSession); setActivePage('dashboard'); }} /> : activePage === 'dashboard' && session ? <BusinessDashboard session={session} onSignOut={signOut} /> : <HomePage products={products} productsLoading={productsLoading} onSelectProduct={openProduct} onPartner={() => navigateTo('partner')} />}
     </div>
   );
 }
