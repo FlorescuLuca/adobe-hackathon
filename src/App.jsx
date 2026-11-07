@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ShaderGradient, ShaderGradientCanvas } from '@shadergradient/react';
 
 const brands = [
   {
@@ -195,7 +196,26 @@ function BranchArtwork() {
 
   return (
     <div className="branch-art" aria-label="Moss and lichen growing on a fallen tree branch" role="img">
-      <div className="shader-field" aria-hidden="true" />
+      <div className="shader-field" aria-hidden="true">
+        <ShaderGradientCanvas style={{ position: 'absolute', inset: 0 }} pixelDensity={1} fov={45}>
+          <ShaderGradient
+            type="plane"
+            animate="on"
+            uSpeed={0.56}
+            uStrength={3.8}
+            uDensity={2.15}
+            uFrequency={2.35}
+            color1="#ffffff"
+            color2="#a6b7c3"
+            color3="#e7eef2"
+            brightness={1.1}
+            grain="on"
+            grainBlending={0.32}
+            cDistance={3.6}
+            cPolarAngle={90}
+          />
+        </ShaderGradientCanvas>
+      </div>
       {branchSource && <img className="branch-image" src={branchSource} alt="" />}
       <div className="branch-label"><span className="status-dot" /> MATERIAL TRACEABILITY · VERIFIED</div>
     </div>
@@ -239,9 +259,9 @@ function HomePage({ onSelectBrand }) {
 
       <section className="trust-strip" aria-label="Verity verification features">
         <div className="strip-intro"><span className="strip-spark">✳</span><span>Clarity you can feel good about</span></div>
-        <div className="strip-item"><span className="strip-icon">01</span><span><strong>Search the Brand:</strong><small>Look up any e-commerce platform.</small></span></div>
-        <div className="strip-item"><span className="strip-icon">02</span><span><strong>Real-Time AI Analysis:</strong><small>Our engine instantly scans thousands of pages of ESG reports, public certifications, and supply chain data.</small></span></div>
-        <div className="strip-item"><span className="strip-icon">03</span><span><strong>The Verdict:</strong><small>Receive a Verity Report with a clear “Trust Score”—telling you instantly if a brand is actually green, or just greenwashing.</small></span></div>
+        <div className="strip-item"><span className="strip-icon">⌁</span><span><strong>Evidence, not promises</strong><small>Claims backed by source documents</small></span></div>
+        <div className="strip-item"><span className="strip-icon">◎</span><span><strong>Checked in real time</strong><small>Certificates and records cross-checked</small></span></div>
+        <div className="strip-item"><span className="strip-icon">↗</span><span><strong>Right at checkout</strong><small>Better context, without the detour</small></span></div>
       </section>
 
       <section className="brands-section section-wrap" id="trusted-brands">
