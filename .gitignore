@@ -16,3 +16,6 @@ __pycache__/
 # Frontend dependencies and build output
 node_modules/
 dist/
+
+output/pdf/verity_sample_test_evidence.pdf
+tmp/pdfs
