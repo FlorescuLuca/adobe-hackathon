@@ -157,6 +157,7 @@ function Header({ query, setQuery, onSelectBrand, onHome, onNavigate }) {
         <nav className="primary-nav" aria-label="Main navigation">
           <button type="button" onClick={() => onNavigate('trusted-brands')}>Brands</button>
           <button type="button" onClick={() => onNavigate('about')}>About us</button>
+          <button type="button" onClick={() => onNavigate('partner')}>Partner with us</button>
           <a href="mailto:hello@verity.eco">Contact</a>
         </nav>
       </div>
@@ -283,7 +284,7 @@ function BrandCard({ brand, onSelectBrand }) {
   );
 }
 
-function HomePage({ onSelectBrand }) {
+function HomePage({ onSelectBrand, onPartner }) {
   return (
     <main>
         <section className="hero-section">
@@ -307,7 +308,7 @@ function HomePage({ onSelectBrand }) {
           <div className="section-heading-aside"><p>Explore a growing circle of brands making their sustainability claims easier to trust.</p><span className="heading-count">04 <i>VERIFIED BRANDS</i></span></div>
         </div>
         <div className="brand-grid">{brands.map((brand) => <BrandCard key={brand.name} brand={brand} onSelectBrand={onSelectBrand} />)}</div>
-        <div className="brand-section-footer"><span className="tiny-orbit">✳</span><span>Verity is growing a more transparent way to shop.</span><a href="mailto:hello@verity.eco">Partner with us <ArrowIcon /></a></div>
+        <div className="brand-section-footer"><span className="tiny-orbit">✳</span><span>Verity is growing a more transparent way to shop.</span><button type="button" className="partner-footer-link" onClick={onPartner}>Partner with us <ArrowIcon /></button></div>
       </section>
 
       <section className="how-section" id="how-it-works">
@@ -328,6 +329,88 @@ function HomePage({ onSelectBrand }) {
       </section>
 
       <footer className="site-footer"><div className="footer-brand"><Mark /><span>verity<span className="wordmark-period">.</span></span></div><p>Proof behind every promise.</p><div className="footer-right"><a href="mailto:hello@verity.eco">Contact</a><span>© 2026 Verity</span><span className="footer-location">Built for better choices <span>✳</span></span></div></footer>
+    </main>
+  );
+}
+
+const partnerPlans = [
+  {
+    name: 'Starter',
+    price: '€29',
+    audience: 'For small businesses',
+    features: [
+      '3 products',
+      '10 document analyses/month',
+      'AI greenwashing detection',
+      'Basic transparency pages',
+      'QR code generation',
+    ],
+  },
+  {
+    name: 'Professional',
+    price: '€99',
+    audience: 'For growing brands',
+    recommended: true,
+    features: [
+      '25 products',
+      '100 document analyses/month',
+      'Advanced claim analysis',
+      'Supplier evidence management',
+      'Embeddable website widget',
+      'Analytics dashboard',
+      'Priority processing',
+    ],
+  },
+  {
+    name: 'Enterprise',
+    price: '€399+',
+    audience: 'For larger companies',
+    features: [
+      'Unlimited products subject to fair-use limits',
+      'Higher document processing allowance',
+      'Multiple team members',
+      'API access',
+      'Supplier management',
+      'Custom integrations',
+      'Advanced reporting',
+    ],
+  },
+];
+
+function PartnerPlansPage() {
+  return (
+    <main className="partner-page">
+      <section className="partner-intro section-wrap">
+        <p className="eyebrow"><span className="eyebrow-mark">✳</span>VERITY FOR BRANDS</p>
+        <h1>Make trust part<br /><em>of your story.</em></h1>
+        <p className="partner-intro-copy">Give your customers a clearer view of the evidence behind your sustainability claims.</p>
+      </section>
+      <section className="partner-plans section-wrap" aria-label="Subscription plans">
+        <div className="partner-plans-heading">
+          <div><p className="eyebrow">SIMPLE MONTHLY PLANS</p><h2>Choose your level<br /><em>of transparency.</em></h2></div>
+          <p>Start with the tools you need today, then grow your verification workflow as your brand expands.</p>
+        </div>
+        <div className="partner-plan-grid">
+          {partnerPlans.map((plan) => (
+            <article className={`partner-plan-card${plan.recommended ? ' is-recommended' : ''}`} key={plan.name}>
+              <div className="partner-plan-topline">
+                <span className="partner-plan-index">VERITY / {plan.name === 'Starter' ? '01' : plan.name === 'Professional' ? '02' : '03'}</span>
+                {plan.recommended && <span className="partner-recommended"><span className="status-dot" />RECOMMENDED</span>}
+              </div>
+              <h3>{plan.name}</h3>
+              <p className="partner-plan-audience">{plan.audience}</p>
+              <div className="partner-plan-price"><strong>{plan.price}</strong><span>/ month</span></div>
+              <a className="partner-plan-action" href={`mailto:hello@verity.eco?subject=${encodeURIComponent(`Verity ${plan.name} plan`)}`}>
+                {plan.name === 'Enterprise' ? 'Talk to our team' : 'Choose this plan'} <ArrowIcon />
+              </a>
+              <div className="partner-plan-divider"><span>INCLUDED</span></div>
+              <ul>{plan.features.map((feature) => <li key={feature}><span aria-hidden="true">✓</span>{feature}</li>)}</ul>
+            </article>
+          ))}
+        </div>
+        <p className="partner-plans-note">Need a tailored setup? <a href="mailto:hello@verity.eco?subject=Verity%20partnership">Talk with us about your requirements <ArrowIcon /></a></p>
+      </section>
+      <footer className="partner-page-footer section-wrap"><span>verity<span className="wordmark-period">.</span></span><span>Evidence for a more informed choice.</span></footer>
     </main>
   );
 }
@@ -374,23 +457,35 @@ function BrandProfile({ brand, onBack }) {
 export default function App() {
   const [query, setQuery] = useState('');
   const [selectedBrand, setSelectedBrand] = useState(null);
+  const [activePage, setActivePage] = useState('home');
 
   function showHome() {
     setSelectedBrand(null);
+    setActivePage('home');
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
   function navigateTo(id) {
-    if (selectedBrand) {
+    if (id === 'partner') {
       setSelectedBrand(null);
-      window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'auto' }), 60);
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
+      setActivePage('partner');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      return;
     }
+
+    const returnToHome = selectedBrand || activePage !== 'home';
+    if (returnToHome) {
+      setSelectedBrand(null);
+      setActivePage('home');
+      window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'auto' }), 60);
+      return;
+    }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'auto' });
   }
 
   function openBrand(brand) {
     setSelectedBrand(brand);
+    setActivePage('home');
     setQuery('');
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
@@ -398,7 +493,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <Header query={query} setQuery={setQuery} onSelectBrand={openBrand} onHome={showHome} onNavigate={navigateTo} />
-      {selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : <HomePage onSelectBrand={openBrand} />}
+      {selectedBrand ? <BrandProfile brand={selectedBrand} onBack={showHome} /> : activePage === 'partner' ? <PartnerPlansPage /> : <HomePage onSelectBrand={openBrand} onPartner={() => navigateTo('partner')} />}
     </div>
   );
 }
