@@ -23,7 +23,6 @@ When every product is labeled "eco-friendly," who can we trust? Brands are commu
 - **Frontend:** React 18, Vite 5, JavaScript, CSS
 - **API and AI engine:** Python, FastAPI, Pydantic, PyMuPDF, OpenAI API
 - **Auth, database, and file storage:** Supabase Auth, PostgreSQL, and Supabase Storage
-- **Frontend styling:** regular CSS; Tailwind CSS is not used
 
 ##  Running Locally
 
