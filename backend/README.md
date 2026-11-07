@@ -26,6 +26,10 @@ Supabase setup:
 2. Create a private Storage bucket named `verity-documents`.
 3. Add the frontend origin to `CORS_ORIGINS` if it differs from `http://localhost:3000`.
 
+If the database was created before company-wide reports were added, also run
+`database/company_level_documents.sql` in the SQL Editor. This allows a document
+to belong to the company portfolio without being attached to one product.
+
 ## Run both services
 
 Start the backend in one PowerShell window:

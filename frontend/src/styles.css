@@ -1913,6 +1913,9 @@ body { font-size: 18px; line-height: 1.55; }
 .dashboard-heading > div:first-child > p:last-child, .public-product-heading > p:not(.eyebrow) { color: #bdcbc4; line-height: 1.6; }
 .dashboard-user { display: flex; align-items: center; gap: 14px; color: #bdcbc4; font-size: 13px; }
 .dashboard-user button, .dashboard-secondary { padding: 10px 14px; border: 1px solid rgba(220,235,229,.25); border-radius: 999px; color: #e7efe9; background: rgba(255,255,255,.04); cursor: pointer; }
+.dashboard-danger { flex: 0 0 auto; padding: 6px 10px; border: 1px solid rgba(238,143,143,.36); border-radius: 999px; color: #f2baba; background: rgba(114,38,38,.12); font-size: 11px; cursor: pointer; }
+.dashboard-danger:hover { border-color: rgba(238,143,143,.7); background: rgba(114,38,38,.24); }
+.dashboard-danger:disabled { opacity: .5; cursor: not-allowed; }
 .dashboard-panel { padding: 22px; border: 1px solid var(--line); border-radius: 8px; background: linear-gradient(145deg, rgba(16,34,30,.92), rgba(12,27,24,.9)); }
 .dashboard-panel h2 { margin: 0 0 16px; color: #edf5ef; font: 400 27px/1.2 'DM Serif Display', Georgia, serif; }
 .dashboard-narrow { max-width: 580px; }
@@ -1943,11 +1946,32 @@ body { font-size: 18px; line-height: 1.55; }
 .dashboard-list { display: grid; gap: 8px; margin: 17px 0 0; padding: 0; list-style: none; }
 .dashboard-list li { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); color: #dfe9e2; font-size: 13px; }
 .dashboard-list li span { color: #a9bdaf; font: 10px var(--mono); text-transform: uppercase; }
+.dashboard-list li strong { min-width: 0; overflow-wrap: anywhere; }
 .dashboard-empty { color: var(--muted); font-size: 13px; }
 .dashboard-assessment { margin-top: 0; }
 .dashboard-assessment h2 { margin-bottom: 5px; }
 .dashboard-assessment p:not(.eyebrow) { margin: 7px 0 0; color: #b4c6bc; font-size: 13px; line-height: 1.6; }
 .dashboard-assessment .dashboard-primary { flex: 0 0 auto; }
+.company-evidence-panel, .portfolio-panel { margin-top: 14px; }
+.company-evidence-panel .dashboard-section-heading { margin-bottom: 8px; }
+.company-evidence-count, .portfolio-results-heading > span, .portfolio-product-meta { color: #a9bdaf; font: 10px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.dashboard-panel-copy { max-width: 820px; margin: 0 0 16px; color: #b4c6bc; font-size: 13px; line-height: 1.65; }
+.company-upload-form { max-width: 720px; }
+.company-upload-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.company-evidence-list { max-width: 720px; }
+.portfolio-hint { margin: 13px 0 0; color: #d8c899; font-size: 12px; }
+.portfolio-progress { margin: 13px 0 0; color: #c9ead7; font-size: 13px; line-height: 1.5; }
+.portfolio-results { margin-top: 23px; }
+.portfolio-results-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.portfolio-results-heading .eyebrow { margin: 0; }
+.portfolio-product-result { padding: 16px 0 2px; border-bottom: 1px solid var(--line); }
+.portfolio-product-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+.portfolio-product-heading h3 { margin: 0; color: #edf5ef; font-size: 16px; }
+.portfolio-product-result > .dashboard-empty, .portfolio-error { margin: 8px 0 12px; font-size: 12px; }
+.portfolio-error { color: #ffd0d0; }
+.portfolio-product-result .assessment-result:first-child { margin-top: 6px; }
+.portfolio-product-result .assessment-result { padding-top: 13px; }
+.product-catalog-panel { margin-top: 14px; }
 .assessment-results { display: grid; gap: 17px; }
 .assessment-result { padding: 17px 0 0; border-top: 1px solid var(--line); color: #c5d5cc; line-height: 1.6; }
 .assessment-result h3 { margin: 0; color: #eff6f1; font-size: 16px; }
@@ -1979,6 +2003,8 @@ body { font-size: 18px; line-height: 1.55; }
   .dashboard-section-heading { align-items: flex-start; flex-direction: column; }
   .dashboard-section-heading select { max-width: none; }
   .assessment-result-title { align-items: flex-start; flex-direction: column; }
+  .company-upload-row { grid-template-columns: 1fr; }
+  .portfolio-product-heading, .portfolio-results-heading { align-items: flex-start; flex-direction: column; }
 }
 
 @media (max-width: 960px) {

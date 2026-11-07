@@ -20,7 +20,8 @@ create table if not exists public.products (
 
 create table if not exists public.documents (
     id uuid primary key default gen_random_uuid(),
-    product_id uuid not null references public.products(id) on delete cascade,
+    -- A null product_id marks company-wide evidence shared across the portfolio.
+    product_id uuid references public.products(id) on delete cascade,
     company_id uuid not null references public.companies(id) on delete cascade,
     filename text not null,
     storage_path text not null unique,
@@ -89,6 +90,7 @@ create table if not exists public.claim_evidence (
 
 create index if not exists products_company_id_idx on public.products(company_id);
 create index if not exists documents_product_id_idx on public.documents(product_id);
+create index if not exists documents_company_id_idx on public.documents(company_id);
 create index if not exists claims_product_id_idx on public.claims(product_id);
 create index if not exists assessment_runs_product_created_idx on public.assessment_runs(product_id, created_at desc);
 create index if not exists facts_run_id_idx on public.facts(run_id);

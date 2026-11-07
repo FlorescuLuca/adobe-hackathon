@@ -18,6 +18,6 @@ The Vite development server uses `http://localhost:3000`, which is included in t
 ## Connected flows
 
 - Company login uses an existing Supabase Auth email/password account.
-- Company dashboard creates a company, creates/selects products, uploads PDFs, adds claims, and starts assessments.
+- Company dashboard accepts company-wide sustainability reports, product-specific documents, and product claims; portfolio assessment evaluates each product separately using shared and product-specific evidence.
 - Publishing a product exposes `/p/{slug}`; its page displays the latest stored assessment and evidence references.
 - Homepage cards and search load published products from the backend.

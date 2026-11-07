@@ -35,6 +35,10 @@ def make_slug(name: str) -> str:
     return slug or f"product-{uuid.uuid4().hex[:8]}"
 
 
+def clear_product_assessments(client: Client, product_id: str):
+    client.table("assessment_runs").delete().eq("product_id", product_id).execute()
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -54,6 +58,34 @@ def create_company(payload: CompanyCreate, user_id: str = Depends(get_user_id), 
 @app.get(api + "/companies/me")
 def get_my_company(user_id: str = Depends(get_user_id), client: Client = Depends(get_supabase)):
     return company_for_user(client, user_id)
+
+
+@app.get(api + "/companies/me/documents")
+def list_company_documents(user_id: str = Depends(get_user_id), client: Client = Depends(get_supabase)):
+    company = company_for_user(client, user_id)
+    return (client.table("documents").select("id,product_id,filename,content_type,file_size,processing_status,created_at")
+            .eq("company_id", company["id"]).is_("product_id", "null")
+            .order("created_at", desc=True).execute().data)
+
+
+@app.delete(api + "/companies/me/documents/{document_id}", status_code=204)
+def delete_company_document(document_id: uuid.UUID, user_id: str = Depends(get_user_id),
+                            client: Client = Depends(get_supabase), config: Settings = Depends(get_settings)):
+    company = company_for_user(client, user_id)
+    try:
+        rows = (client.table("documents").select("id,storage_path").eq("id", str(document_id))
+                .eq("company_id", company["id"]).is_("product_id", "null").limit(1).execute().data)
+        if not rows:
+            raise HTTPException(status_code=404, detail="Company report not found.")
+        client.storage.from_(config.supabase_storage_bucket).remove([rows[0]["storage_path"]])
+        product_rows = client.table("products").select("id").eq("company_id", company["id"]).execute().data
+        for product in product_rows:
+            clear_product_assessments(client, product["id"])
+        client.table("documents").delete().eq("id", str(document_id)).eq("company_id", company["id"]).execute()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db_failure(exc)
 
 
 @app.post(api + "/products", status_code=201)
@@ -93,9 +125,15 @@ def update_product(product_id: uuid.UUID, payload: ProductUpdate, user_id: str =
 
 
 @app.delete(api + "/products/{product_id}", status_code=204)
-def delete_product(product_id: uuid.UUID, user_id: str = Depends(get_user_id), client: Client = Depends(get_supabase)):
+def delete_product(product_id: uuid.UUID, user_id: str = Depends(get_user_id), client: Client = Depends(get_supabase),
+                   config: Settings = Depends(get_settings)):
     company, _ = owned_product(client, user_id, str(product_id))
     try:
+        docs = (client.table("documents").select("storage_path").eq("company_id", company["id"])
+                .eq("product_id", str(product_id)).execute().data)
+        paths = [doc["storage_path"] for doc in docs]
+        if paths:
+            client.storage.from_(config.supabase_storage_bucket).remove(paths)
         client.table("products").delete().eq("id", str(product_id)).eq("company_id", company["id"]).execute()
     except Exception as exc:
         db_failure(exc)
@@ -116,11 +154,45 @@ def list_claims(product_id: uuid.UUID, user_id: str = Depends(get_user_id), clie
     return client.table("claims").select("*").eq("product_id", str(product_id)).order("created_at").execute().data
 
 
+@app.delete(api + "/products/{product_id}/claims/{claim_id}", status_code=204)
+def delete_claim(product_id: uuid.UUID, claim_id: uuid.UUID, user_id: str = Depends(get_user_id),
+                 client: Client = Depends(get_supabase)):
+    owned_product(client, user_id, str(product_id))
+    try:
+        rows = (client.table("claims").delete().eq("id", str(claim_id))
+                .eq("product_id", str(product_id)).execute().data)
+        if not rows:
+            raise HTTPException(status_code=404, detail="Claim not found.")
+        clear_product_assessments(client, str(product_id))
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db_failure(exc)
+
+
 @app.get(api + "/products/{product_id}/documents")
 def list_documents(product_id: uuid.UUID, user_id: str = Depends(get_user_id), client: Client = Depends(get_supabase)):
     owned_product(client, user_id, str(product_id))
     return (client.table("documents").select("id,product_id,filename,content_type,file_size,processing_status,created_at")
             .eq("product_id", str(product_id)).order("created_at", desc=True).execute().data)
+
+
+@app.delete(api + "/products/{product_id}/documents/{document_id}", status_code=204)
+def delete_product_document(product_id: uuid.UUID, document_id: uuid.UUID, user_id: str = Depends(get_user_id),
+                            client: Client = Depends(get_supabase), config: Settings = Depends(get_settings)):
+    company, _ = owned_product(client, user_id, str(product_id))
+    try:
+        rows = (client.table("documents").select("id,storage_path").eq("id", str(document_id))
+                .eq("company_id", company["id"]).eq("product_id", str(product_id)).limit(1).execute().data)
+        if not rows:
+            raise HTTPException(status_code=404, detail="Product document not found.")
+        client.storage.from_(config.supabase_storage_bucket).remove([rows[0]["storage_path"]])
+        clear_product_assessments(client, str(product_id))
+        client.table("documents").delete().eq("id", str(document_id)).eq("company_id", company["id"]).execute()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db_failure(exc)
 
 
 @app.patch(api + "/claims/{claim_id}")
@@ -168,15 +240,49 @@ async def upload_document(product_id: uuid.UUID, file: UploadFile = File(...), u
         db_failure(exc)
 
 
+@app.post(api + "/companies/me/documents", status_code=201)
+async def upload_company_document(file: UploadFile = File(...), user_id: str = Depends(get_user_id),
+                                  client: Client = Depends(get_supabase), config: Settings = Depends(get_settings)):
+    company = company_for_user(client, user_id)
+    if file.content_type != "application/pdf" or not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(status_code=415, detail="Upload a PDF file.")
+    content = await file.read(config.max_upload_mb * 1024 * 1024 + 1)
+    if len(content) > config.max_upload_mb * 1024 * 1024:
+        raise HTTPException(status_code=413, detail=f"PDF exceeds {config.max_upload_mb} MB.")
+    if not content.startswith(b"%PDF-"):
+        raise HTTPException(status_code=415, detail="The uploaded file is not a valid PDF.")
+    document_id = str(uuid.uuid4())
+    path = f"{company['id']}/company/{document_id}.pdf"
+    try:
+        client.storage.from_(config.supabase_storage_bucket).upload(
+            path, content, file_options={"content-type": "application/pdf", "upsert": "false"}
+        )
+        row = {"id": document_id, "product_id": None, "company_id": company["id"],
+               "filename": file.filename, "storage_path": path, "content_type": "application/pdf",
+               "file_size": len(content), "processing_status": "pending"}
+        return client.table("documents").insert(row).execute().data[0]
+    except Exception as exc:
+        try:
+            client.storage.from_(config.supabase_storage_bucket).remove([path])
+        except Exception:
+            pass
+        db_failure(exc)
+
+
 @app.post(api + "/products/{product_id}/assessments", status_code=201)
 async def create_assessment(product_id: uuid.UUID, payload: AssessmentRequest, user_id: str = Depends(get_user_id),
                             client: Client = Depends(get_supabase), config: Settings = Depends(get_settings)):
     company, _ = owned_product(client, user_id, str(product_id))
     if not config.ai_engine_url:
         raise HTTPException(status_code=503, detail="The AI assessment service is not configured yet.")
-    docs = client.table("documents").select("*").eq("product_id", str(product_id)).in_("id", [str(x) for x in payload.document_ids]).execute().data
+    requested_doc_ids = {str(value) for value in payload.document_ids}
+    company_docs = (client.table("documents").select("*").eq("company_id", company["id"])
+                    .is_("product_id", "null").execute().data)
+    product_docs = (client.table("documents").select("*").eq("company_id", company["id"])
+                    .eq("product_id", str(product_id)).execute().data)
+    docs = [row for row in [*company_docs, *product_docs] if str(row["id"]) in requested_doc_ids]
     claims = client.table("claims").select("*").eq("product_id", str(product_id)).in_("id", [str(x) for x in payload.claim_ids]).execute().data
-    if len(docs) != len(set(payload.document_ids)) or len(claims) != len(set(payload.claim_ids)):
+    if len(docs) != len(requested_doc_ids) or len(claims) != len(set(payload.claim_ids)):
         raise HTTPException(status_code=404, detail="A selected document or claim was not found.")
     local_claim_ids = {str(row["id"]): f"c{i + 1}" for i, row in enumerate(claims)}
     engine_docs = []
@@ -197,13 +303,12 @@ async def create_assessment(product_id: uuid.UUID, payload: AssessmentRequest, u
         raise HTTPException(status_code=502, detail="The AI assessment service could not complete the request.") from exc
     except Exception as exc:
         raise HTTPException(status_code=502, detail="The AI assessment response did not match the contract.") from exc
-    requested_docs = {str(value) for value in payload.document_ids}
-    if any(str(f.document_id) not in requested_docs for f in result.facts):
+    if any(str(f.document_id) not in requested_doc_ids for f in result.facts):
         raise HTTPException(status_code=502, detail="The AI response referenced an unrequested document.")
     returned_claims = {claim.id for claim in result.claims}
     if returned_claims != set(local_claim_ids.values()):
         raise HTTPException(status_code=502, detail="The AI response claim IDs did not match the request.")
-    run_row = {"product_id": str(product_id), "document_ids": list(requested_docs),
+    run_row = {"product_id": str(product_id), "document_ids": list(requested_doc_ids),
                "model": result.meta.model, "tokens": result.meta.tokens, "pages": result.meta.pages,
                "result_json": result.model_dump(mode="json")}
     try:

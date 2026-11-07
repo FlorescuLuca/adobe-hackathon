@@ -5,7 +5,9 @@ Pornire:  uvicorn engine:app --port 8001
 Env:      OPENAI_API_KEY (obligatoriu), AI_ENGINE_TOKEN (optional, acelasi ca in backend/.env),
           OPENAI_MODEL (implicit gpt-4o-mini)
 """
-import json, os, re
+import hashlib
+import json, logging, os, re
+from collections import OrderedDict
 import httpx
 import pymupdf
 from dotenv import load_dotenv
@@ -23,6 +25,9 @@ SCOPES = {"company", "product", "site"}
 VAGUE = re.compile(r"eco[- ]?friendly|green|sustainab|planet|natural|verde|ecologic|sustenabil|prietenos cu mediul", re.I)
 
 app = FastAPI(title="VERITY AI engine")
+logger = logging.getLogger("uvicorn.error")
+FACT_CACHE = OrderedDict()
+FACT_CACHE_MAX_DOCUMENTS = 16
 
 
 # ---------- LLM ----------
@@ -86,7 +91,9 @@ CLAIM_SYSTEM = (
 
 def extract_facts(doc_id: str, pages: list[str], ask):
     facts, tokens = [], 0
-    for chunk in chunks(pages):
+    total_chunks = (len(pages) + CHUNK_PAGES - 1) // CHUNK_PAGES
+    for chunk_index, chunk in enumerate(chunks(pages), 1):
+        logger.info("Extracting facts from document %s, chunk %d/%d", doc_id, chunk_index, total_chunks)
         out, t = ask(FACT_SYSTEM, chunk)
         tokens += t
         for f in out.get("facts", []):
@@ -134,15 +141,31 @@ def assess_claims(claims: list[EngineClaim], facts: list[dict], ask):
     return results, tokens
 
 
-def run_assessment(docs_pages: dict[str, list[str]], claims: list[EngineClaim], ask=llm_json) -> dict:
+def run_assessment(docs_pages: dict[str, list[str]], claims: list[EngineClaim], ask=llm_json,
+                   document_hashes: dict[str, str] | None = None) -> dict:
     facts, tokens = [], 0
     for doc_id, pages in docs_pages.items():
-        f, t = extract_facts(doc_id, pages, ask)
-        facts += f; tokens += t
+        cache_key = (document_hashes or {}).get(doc_id)
+        cached_facts = FACT_CACHE.get(cache_key) if cache_key else None
+        if cached_facts is not None:
+            logger.info("Reusing extracted facts for document %s", doc_id)
+            FACT_CACHE.move_to_end(cache_key)
+            facts.extend({**fact, "document_id": doc_id} for fact in cached_facts)
+        else:
+            logger.info("Reading sustainability facts from %d pages in document %s", len(pages), doc_id)
+            extracted, used_tokens = extract_facts(doc_id, pages, ask)
+            facts.extend(extracted)
+            tokens += used_tokens
+            if cache_key:
+                FACT_CACHE[cache_key] = [{**fact, "document_id": None} for fact in extracted]
+                FACT_CACHE.move_to_end(cache_key)
+                while len(FACT_CACHE) > FACT_CACHE_MAX_DOCUMENTS:
+                    FACT_CACHE.popitem(last=False)
     for i, f in enumerate(facts, 1):
         f["id"] = f"f{i}"
     results, t = assess_claims(claims, facts, ask)
     total_pages = sum(len(pages) for pages in docs_pages.values())
+    logger.info("Assessment complete: %d claims, %d pages", len(claims), total_pages)
     return {"facts": facts, "claims": results,
             "meta": {"model": MODEL, "tokens": tokens + t, "pages": total_pages}}
 
@@ -161,11 +184,22 @@ def health():
 @app.post("/assess", dependencies=[Depends(check_auth)])
 async def assess(body: AssessBody):
     docs_pages = {}
+    document_hashes = {}
+    document_ids_by_hash = {}
+    logger.info("Assessment received: %d documents, %d claims", len(body.documents), len(body.claims))
     async with httpx.AsyncClient(timeout=120, follow_redirects=True) as http:
         for d in body.documents:
             try:
+                logger.info("Downloading document %s", d.filename)
                 r = await http.get(d.download_url); r.raise_for_status()
+                content_hash = hashlib.sha256(r.content).hexdigest()
+                if content_hash in document_ids_by_hash:
+                    logger.info("Skipping duplicate PDF %s; identical content is already included", d.filename)
+                    continue
+                document_hashes[d.id] = content_hash
+                document_ids_by_hash[content_hash] = d.id
                 docs_pages[d.id] = read_pdf(r.content)
+                logger.info("Loaded %d pages from %s", len(docs_pages[d.id]), d.filename)
             except Exception as exc:
                 raise HTTPException(status_code=422, detail=f"Cannot read document {d.filename}") from exc
-    return run_assessment(docs_pages, body.claims)
+    return run_assessment(docs_pages, body.claims, document_hashes=document_hashes)
